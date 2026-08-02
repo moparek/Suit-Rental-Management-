@@ -1,14 +1,15 @@
 const User = require("../Models/users");
+const bcrypt = require("bcrypt");
 
 const addNewUser = async (req, res) => {
   try {
     const { name, phone, email, password } = req.body;
-
+    const hashed=await bcrypt.hash(password,10)
     const newUser = new User({
       name,
       phone,
       email,
-      password,
+      password:hashed
     });
 
     const result = await newUser.save();
@@ -23,5 +24,9 @@ const addNewUser = async (req, res) => {
 };
 
 
+const getAllUsers= async(req, res)=>{
+    const list= await User.find();
+    res.json(list)  
+}
 
-module.exports = {addNewUser};
+module.exports = {addNewUser, getAllUsers};
