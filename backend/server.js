@@ -2,6 +2,7 @@ const express = require("express");
 const connectDB = require("./dbconnection/db.config");
 
 const app = express();
+app.use(express.json()); 
 
 connectDB();
 
