@@ -70,7 +70,6 @@ const updateInventory = async (req, res) => {
 
 const deleteInventory = async(req , res) => {
   try {
-
     const id = req.params.id 
     const result = await Inventory.findByIdAndDelete(id);
     res.json(result);
