@@ -2,6 +2,8 @@ const express = require("express");
 require("dotenv").config();
 const connectDB = require("./dbconnection/db.config");
 const userRouter = require("./router/userRouter");
+const inventoryRouter = require("./router/inventoryRouter");
+
 
 const app = express();
 app.use(express.json());
@@ -9,6 +11,7 @@ app.use(express.json());
 connectDB();
 
 app.use("/api/users", userRouter);
+app.use("/api/inventory", inventoryRouter)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
