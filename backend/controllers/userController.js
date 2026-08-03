@@ -1,3 +1,4 @@
+const users = require("../Models/users");
 const User = require("../Models/users");
 const bcrypt = require("bcrypt");
 
@@ -74,5 +75,33 @@ const updateUser = async (req, res) => {
     res.status(500).json({ message: "Internal server error occurred" });
   }
 };
-module.exports = { addNewUser, getAllUsers, updateUser };
+ //  Delete user 
+const deleteUser = async(req , res) => {
+  try {
+
+    const id = req.params.id 
+    const result = await User.findByIdAndDelete(id);
+    res.json(result);
+    
+  } catch (error) {
+
+    res.status(500).json({ message: "Internal server error occurred" });
+    
+  };
+};
+
+const findByphone = async(req , res) => {
+  try {
+
+    const phone = req.params.phone 
+    const result = await User.findOne({phone:phone}).select("-password");
+    res.json(result);
+    
+  } catch (error) {
+
+    res.status(500).json({ message: "Internal server error occurred" });
+    
+  };
+};
+module.exports = { addNewUser, getAllUsers, updateUser, deleteUser , findByphone };
 
