@@ -17,6 +17,20 @@ const inventorySchema= new mongoose.Schema({
      price:{
         type:Number,
         required:true
+    },
+    status: {
+        type: String,
+        enum: [
+            "available",
+            "rental",
+            "maintenance"
+        ],
+        required: true
+    },
+
+    image: {
+        type: String,
+        required: true
     }
 },
 {

@@ -6,9 +6,9 @@ const Inventory = require("../Models/inventory");
 
 const addInventory = async (req, res) => {
   try {
-    const { name, zise, color, price } = req.body;
+    const { name, zise, color, price, status , image } = req.body;
 
-    if (!name || !zise || !color || !price) {
+    if (!name || !zise || !color || !price || !status || !image) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -17,7 +17,9 @@ const addInventory = async (req, res) => {
       name,
       zise,
       color,
-      price
+      price,
+      status,
+      image
     });
 
     const result = await newInventory.save();
@@ -43,13 +45,15 @@ const getAllinventory = async (req, res) => {
 const updateInventory = async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, zise, color, price } = req.body;
+    const { name, zise, color, price, status, image } = req.body;
 
     const updateData = {
       name,
       zise,
       color,
-      price
+      price,
+      status,
+      image
     };
 
    
