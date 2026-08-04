@@ -25,6 +25,13 @@ const rentalSchema = new mongoose.Schema({
     required: true,
   },
 
+  paymentStatus: {
+  type: String,
+  enum: ["paid", "unpaid", "partial"],
+  default: "paid",
+  required: true,
+},
+
   endDate: {
     type: Date,
     required: true,
