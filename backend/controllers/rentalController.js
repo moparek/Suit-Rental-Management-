@@ -5,12 +5,12 @@ const mongoose = require("mongoose");
 const addRental = async (req, res) => {
   try {
     const body = req.body || {};
-    const {name, phone, phoneTwo, deposit, startDate, endDate} = body;
+    const {name, phone, phoneTwo, deposit, startDate, endDate,paymentStatus } = body;
     if (!name || !phone || !phoneTwo || !startDate || !endDate) {
       return res.status(400).json({message: "All required fields are required"});
     }
 
-    const newRental = new Rental({name, phone, phoneTwo, deposit, startDate, endDate})
+    const newRental = new Rental({name, phone, phoneTwo, deposit, startDate, endDate,paymentStatus})
     const result = await newRental.save();
     res.status(201).json(result)
   } catch (error) {
@@ -40,16 +40,7 @@ const updateRental = async (req, res) => {
       return res.status(400).json({ message: "Invalid rental id" });
     }
     
-    const { name, phone, phoneTwo, deposit, startDate, endDate } = req.body || {};
-
-    const updateData = {
-      name,
-      phone,
-      phoneTwo,
-      deposit,
-      startDate,
-      endDate
-    };
+    const { name, phone, phoneTwo, deposit, startDate, endDate,paymentStatus } = req.body || {};
 
     const result = await Rental.findByIdAndUpdate(id, updateData, {
       new: true,
