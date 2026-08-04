@@ -12,7 +12,7 @@ const sanitizeUser = (user) => {
 
 const addNewUser = async (req, res) => {
   try {
-    const { name, phone, email, password } = req.body;
+    const { name, phone, email, password, role } = req.body;
 
     if (!name || !phone || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -20,11 +20,12 @@ const addNewUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
-      name,
-      phone,
-      email,
-      password: hashedPassword,
-    });
+    name,
+    phone,
+    email,
+    password: hashedPassword,
+    role
+  });
 
     const result = await newUser.save();
     res.status(201).json(sanitizeUser(result));
@@ -49,13 +50,12 @@ const getAllUsers = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, phone, email, password } = req.body;
-
+    const { name, phone, email, password, role } = req.body;
     const updateData = {
       name,
       phone,
       email,
-      password
+      role
     };
 
     if (password) {
