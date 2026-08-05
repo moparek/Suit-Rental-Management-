@@ -8,7 +8,6 @@ const addInventory = async (req, res) => {
     if (!name || !zise || !color || !price || !status || !image) {
       return res.status(400).json({ message: "All fields are required" });
     }
-
     const newInventory = new Inventory({ name, zise, color, price, status, image });
     const result = await newInventory.save();
     res.status(201).json(result);

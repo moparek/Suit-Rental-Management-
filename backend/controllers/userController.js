@@ -12,7 +12,7 @@ const sanitizeUser = (user) => {
 
 const addNewUser = async (req, res) => {
   try {
-    const { name, phone, email, password, role } = req.body;
+    const { name, phone, email, password, role,status } = req.body;
 
     if (!name || !phone || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -24,7 +24,8 @@ const addNewUser = async (req, res) => {
     phone,
     email,
     password: hashedPassword,
-    role
+    role,
+    status
   });
 
     const result = await newUser.save();
@@ -50,12 +51,13 @@ const getAllUsers = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, phone, email, password, role } = req.body;
+    const { name, phone, email, password, role,status } = req.body;
     const updateData = {
       name,
       phone,
       email,
-      role
+      role,
+      status
     };
 
     if (password) {
