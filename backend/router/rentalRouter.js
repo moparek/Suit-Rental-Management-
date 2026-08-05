@@ -3,11 +3,14 @@ const rentalController = require("../controllers/rentalController");
 
 const router = express.Router();
 
+// CRUD
 router.post("/create", rentalController.addRental);
 router.get("/getAll", rentalController.getAllRentals);
-router.get("/update/:id", rentalController.findRentalById);
+router.get("/getOne/:id", rentalController.findRentalById);
 router.put("/update/:id", rentalController.updateRental);
 router.delete("/delete/:id", rentalController.deleteRental);
-router.get("/:id", rentalController.findRentalById);
+
+// Return workflow
+router.patch("/return/:id", rentalController.returnRental);
 
 module.exports = router;

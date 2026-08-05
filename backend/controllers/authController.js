@@ -18,11 +18,10 @@ const login = async (req, res) => {
     }
 
     // Sign JWT
-    const token = jwt.sign({id: user._id, role: user.role},
+    const token = jwt.sign({id:user._id, role: user.role},
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "8h" }
     );
-
     res.json({token,
       user: {
         id: user._id,
