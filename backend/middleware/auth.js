@@ -1,14 +1,5 @@
 const jwt = require("jsonwebtoken");
 
-/**
- * protect — JWT authentication middleware.
- *
- * Expects the token in the Authorization header as:
- *   Authorization: Bearer <token>
- *
- * On success, attaches the decoded payload to req.user and calls next().
- * On failure, returns 401.
- */
 const protect = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization || "";
@@ -20,7 +11,7 @@ const protect = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
-    req.user = decoded; // { id, role, iat, exp }
+    req.user = decoded;
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
