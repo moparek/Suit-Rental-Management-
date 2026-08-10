@@ -37,17 +37,23 @@ const createRental = async (req, res) => {
     const {
       customer,
       suit,
-      startDate,
-      endDate,
       totalAmount,
       deposit,
       paymentStatus,
-      rentalStatus,
       notes,
     } = req.body;
 
+    const startDate = req.body.startDate || req.body.rentalDate;
+    let endDate = req.body.endDate || req.body.returnDate;
+
+    if (!endDate && startDate && req.body.rentalDays) {
+      endDate = new Date(new Date(startDate).getTime() + Number(req.body.rentalDays) * 86400000);
+    }
+
+    const rentalStatus = req.body.rentalStatus || req.body.status || "active";
+
     if (!customer || !suit || !startDate || !endDate || totalAmount === undefined) {
-      return res.status(400).json({ message: "Customer, suit, start date, end date, and total amount are required" });
+      return res.status(400).json({ message: "Customer, suit, rental date, return date, and total amount are required" });
     }
 
     const suitItem = await Suit.findById(suit);
@@ -60,11 +66,12 @@ const createRental = async (req, res) => {
       suit,
       startDate,
       endDate,
+      returnDate: rentalStatus === "returned" ? endDate : null,
       totalAmount,
       deposit: deposit || 0,
       balance: totalAmount - (deposit || 0),
       paymentStatus: paymentStatus || "pending",
-      rentalStatus: rentalStatus || "reserved",
+      rentalStatus,
       notes,
     });
 

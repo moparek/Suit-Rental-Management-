@@ -2,6 +2,7 @@ const Customer = require("../Models/customerModel");
 const Suit = require("../Models/suitModel");
 const Rental = require("../Models/rentalModel");
 const Booking = require("../Models/bookingModel");
+const User = require("../Models/userModel");
 
 const getDashboardStats = async (req, res) => {
   try {
@@ -9,21 +10,28 @@ const getDashboardStats = async (req, res) => {
       totalCustomers,
       totalSuits,
       activeRentals,
+      returnedRentals,
       availableSuits,
+      rentedSuits,
       pendingBookings,
+      totalStaff,
       paidRentals,
       rentalsList,
     ] = await Promise.all([
       Customer.countDocuments(),
       Suit.countDocuments(),
       Rental.countDocuments({ rentalStatus: "active" }),
+      Rental.countDocuments({ rentalStatus: "returned" }),
       Suit.countDocuments({ status: "available" }),
+      Suit.countDocuments({ status: "rented" }),
       Booking.countDocuments({ status: "pending" }),
+      User.countDocuments(),
       Rental.find({ paymentStatus: "paid" }),
       Rental.find().populate("suit"),
     ]);
 
     const totalRevenue = paidRentals.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+    const utilizationRate = totalSuits > 0 ? Math.round(((totalSuits - availableSuits) / totalSuits) * 100) : 0;
 
     // Monthly revenue breakdown
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -60,8 +68,13 @@ const getDashboardStats = async (req, res) => {
       totalCustomers,
       totalSuits,
       activeRentals,
-      totalRevenue,
+      returnedRentals,
       availableSuits,
+      rentedSuits: rentedSuits || activeRentals,
+      totalStaff,
+      newCustomers: totalCustomers,
+      utilizationRate,
+      totalRevenue,
       pendingBookings,
       monthlyRevenue,
       rentalsByCategory,

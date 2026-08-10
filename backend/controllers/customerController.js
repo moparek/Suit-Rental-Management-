@@ -26,7 +26,8 @@ const getCustomer = async (req, res) => {
 
 const createCustomer = async (req, res) => {
   try {
-    const { name, phone, email, address, status } = req.body;
+    const { phone, email, address, status } = req.body;
+    const name = req.body.name || req.body.fullName;
 
     if (!name || !phone) {
       return res.status(400).json({ message: "Customer name and phone number are required" });
@@ -49,7 +50,8 @@ const createCustomer = async (req, res) => {
 
 const updateCustomer = async (req, res) => {
   try {
-    const { name, phone, email, address, status } = req.body;
+    const { phone, email, address, status } = req.body;
+    const name = req.body.name || req.body.fullName;
     const customer = await Customer.findById(req.params.id);
 
     if (!customer) {

@@ -36,4 +36,13 @@ const customerSchema = new mongoose.Schema(
   }
 );
 
+customerSchema.virtual("fullName").get(function () {
+  return this.name;
+}).set(function (v) {
+  this.name = v;
+});
+
+customerSchema.set("toJSON", { virtuals: true });
+customerSchema.set("toObject", { virtuals: true });
+
 module.exports = mongoose.model("Customer", customerSchema);

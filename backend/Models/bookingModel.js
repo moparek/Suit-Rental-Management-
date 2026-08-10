@@ -5,33 +5,43 @@ const bookingSchema = new mongoose.Schema(
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
-      required: [true, "Customer is required"],
+    },
+    customerName: {
+      type: String,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
     },
     suit: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Suit",
       required: [true, "Suit is required"],
     },
+    size: {
+      type: String,
+      default: "M",
+    },
     eventDate: {
       type: Date,
-      required: [true, "Event date is required"],
+      default: Date.now,
     },
     eventType: {
       type: String,
-      enum: ["Wedding", "Graduation", "Business Meeting", "Party", "Other"],
-      required: [true, "Event type is required"],
+      default: "Other",
     },
     pickupDate: {
       type: Date,
-      required: [true, "Pickup date is required"],
+      default: Date.now,
     },
     returnDate: {
       type: Date,
-      required: [true, "Return date is required"],
+      default: () => new Date(Date.now() + 86400000 * 3),
     },
     totalAmount: {
       type: Number,
-      required: [true, "Total amount is required"],
+      default: 0,
       min: 0,
     },
     deposit: {
@@ -41,8 +51,7 @@ const bookingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled", "completed"],
-      default: "pending",
+      default: "Reserved",
     },
     notes: {
       type: String,
@@ -53,5 +62,20 @@ const bookingSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+bookingSchema.virtual("bookingDate").get(function () {
+  return this.eventDate || this.createdAt;
+}).set(function (v) {
+  this.eventDate = v;
+});
+
+bookingSchema.virtual("price").get(function () {
+  return this.totalAmount;
+}).set(function (v) {
+  this.totalAmount = v;
+});
+
+bookingSchema.set("toJSON", { virtuals: true });
+bookingSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Booking", bookingSchema);

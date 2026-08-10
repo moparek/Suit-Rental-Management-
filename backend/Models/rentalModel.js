@@ -58,11 +58,25 @@ const rentalSchema = new mongoose.Schema(
   }
 );
 
-rentalSchema.pre("save", function (next) {
+rentalSchema.pre("save", function () {
   if (this.totalAmount !== undefined && this.deposit !== undefined) {
     this.balance = this.totalAmount - this.deposit;
   }
-  next();
 });
+
+rentalSchema.virtual("rentalDate").get(function () {
+  return this.startDate;
+}).set(function (v) {
+  this.startDate = v;
+});
+
+rentalSchema.virtual("status").get(function () {
+  return this.rentalStatus;
+}).set(function (v) {
+  this.rentalStatus = v;
+});
+
+rentalSchema.set("toJSON", { virtuals: true });
+rentalSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Rental", rentalSchema);
