@@ -1,11 +1,17 @@
 const express = require("express");
-const { inventoryReport, revenueReport, dashboardReport } = require("../controllers/reportController");
+const {
+  getRevenueReport,
+  getRentalReport,
+  getCustomerReport,
+  getSuitReport,
+} = require("../controllers/reportController");
 const { protect } = require("../middleware/auth");
 
-const reportRouter = express.Router();
+const router = express.Router();
 
-reportRouter.get("/inventory", protect, inventoryReport);
-reportRouter.get("/revenue", protect, revenueReport);
-reportRouter.get("/dashboard", protect, dashboardReport);
+router.get("/revenue", protect, getRevenueReport);
+router.get("/rentals", protect, getRentalReport);
+router.get("/customers", protect, getCustomerReport);
+router.get("/suits", protect, getSuitReport);
 
-module.exports = reportRouter;
+module.exports = router;

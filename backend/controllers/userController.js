@@ -1,109 +1,110 @@
-const users = require("../Models/users");
-const User = require("../Models/users");
-const bcrypt = require("bcrypt");
+const User = require("../Models/userModel");
 
-const sanitizeUser = (user) => {
-  if (!user) return null;
-
-  const userObject = user.toObject ? user.toObject() : user;
-  const { password, ...rest } = userObject;
-  return rest;
-};
-
-const addNewUser = async (req, res) => {
-  try {
-    const { name, phone, email, password, role,status } = req.body;
-
-    if (!name || !phone || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-    name,
-    phone,
-    email,
-    password: hashedPassword,
-    role,
-    status
-  });
-
-    const result = await newUser.save();
-    res.status(201).json(sanitizeUser(result));
-  } catch (error) {
-    console.error("Internal server error occurred:", error);
-    res.status(500).json({ message: "Internal server error occurred" });
-  }
-};
-
-//get users
+// @desc    Get all users/staff
+// @route   GET /api/users
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
     res.json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ message: "Internal server error occurred" });
+    console.error("Get all users error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-//updat or edit
-const updateUser = async (req, res) => {
+// @desc    Create a new user/staff
+// @route   POST /api/users
+const createUser = async (req, res) => {
   try {
-    const id = req.params.id;
-    const { name, phone, email, password, role,status } = req.body;
-    const updateData = {
-      name,
-      phone,
-      email,
-      role,
-      status
-    };
+    const { name, email, phone, password, role, status } = req.body;
 
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({ message: "Name, email, phone, and password are required" });
     }
 
-    const result = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User with this email already exists" });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      phone,
+      password,
+      role: role || "staff",
+      status: status || "active",
     });
 
-    if (!result) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(sanitizeUser(result));
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.status(201).json(userObj);
   } catch (error) {
-    console.error("Error updating user:", error);
-    res.status(500).json({ message: "Internal server error occurred" });
+    console.error("Create user error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
- //  Delete user 
-const deleteUser = async(req , res) => {
+
+const updateUser = async (req, res) => {
   try {
+    const { name, email, phone, role, status, password } = req.body;
+    const user = await User.findById(req.params.id);
 
-    const id = req.params.id 
-    const result = await User.findByIdAndDelete(id);
-    res.json(result);
-    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (role) user.role = role;
+    if (status) user.status = status;
+    if (password) user.password = password;
+
+    const updatedUser = await user.save();
+    const userObj = updatedUser.toObject();
+    delete userObj.password;
+
+    res.json(userObj);
   } catch (error) {
-
-    res.status(500).json({ message: "Internal server error occurred" });
-    
-  };
+    console.error("Update user error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-const findByphone = async(req , res) => {
+const updateUserStatus = async (req, res) => {
   try {
+    const { status } = req.body;
+    const user = await User.findById(req.params.id);
 
-    const phone = req.params.phone 
-    const result = await User.findOne({phone:phone}).select("-password");
-    res.json(result);
-    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.status = status || (user.status === "active" ? "inactive" : "active");
+    const updatedUser = await user.save();
+    const userObj = updatedUser.toObject();
+    delete userObj.password;
+
+    res.json(userObj);
   } catch (error) {
-
-    res.status(500).json({ message: "Internal server error occurred" });
-    
-  };
+    console.error("Update user status error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
-module.exports = { addNewUser, getAllUsers, updateUser, deleteUser , findByphone };
 
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ message: "User removed successfully", _id: req.params.id });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {getAllUsers, createUser,updateUser,updateUserStatus,deleteUser};

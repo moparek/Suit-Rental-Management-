@@ -1,224 +1,141 @@
-const Inventory = require("../Models/inventory");
-const Rental = require("../Models/rental");
+const Rental = require("../Models/rentalModel");
+const Customer = require("../Models/customerModel");
+const Suit = require("../Models/suitModel");
 
-const inventoryReport = async (req, res) => {
+const filterByDates = (query, startDate, endDate) => {
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      query.createdAt.$lte = end;
+    }
+  }
+  return query;
+};
+
+// @desc    Revenue Report
+// @route   GET /api/reports/revenue
+const getRevenueReport = async (req, res) => {
   try {
-    const [total, available, rented, maintenance] = await Promise.all([
-      Inventory.countDocuments(),
-      Inventory.countDocuments({ status: "available" }),
-      Inventory.countDocuments({ status: "rental" }),
-      Inventory.countDocuments({ status: "maintenance" }),
-    ]);
-    const rentalCounts = await Rental.aggregate([
-      { $group: { _id: "$inventory", count: { $sum: 1 } } },
-    ]);
+    const { startDate, endDate } = req.query;
+    const query = filterByDates({}, startDate, endDate);
 
-    const countMap = {};
-    rentalCounts.forEach((r) => {
-      countMap[String(r._id)] = r.count;
-    });
+    const rentals = await Rental.find(query).sort({ createdAt: -1 });
 
-    const suits = await Inventory.find().lean();
-    const items = suits.map((s) => ({
-      _id: s._id,
-      name: s.name,
-      size: s.zise,
-      color: s.color,
-      price: s.price,
-      status: s.status,
-      timesRented: countMap[String(s._id)] || 0,
+    const report = rentals.map((r) => ({
+      _id: r._id,
+      date: r.createdAt ? r.createdAt.toISOString().split("T")[0] : "",
+      rentals: 1,
+      revenue: r.totalAmount || 0,
+      deposit: r.deposit || 0,
+      paymentStatus: r.paymentStatus,
     }));
 
-    res.json({ summary: { total, available, rented, maintenance }, items });
+    res.json(report);
   } catch (error) {
-    console.error("Error generating inventory report:", error);
-    res.status(500).json({ message: "Internal server error occurred" });
+    console.error("Revenue report error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+const getRentalReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const query = filterByDates({}, startDate, endDate);
+
+    const rentals = await Rental.find(query)
+      .populate("customer", "name")
+      .populate("suit", "name")
+      .sort({ createdAt: -1 });
+
+    const report = rentals.map((r) => {
+      const start = new Date(r.startDate);
+      const end = new Date(r.endDate);
+      const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+
+      return {
+        _id: r._id,
+        customer: r.customer ? r.customer.name : "N/A",
+        suit: r.suit ? r.suit.name : "N/A",
+        duration: `${days} ${days === 1 ? "day" : "days"}`,
+        amount: r.totalAmount || 0,
+        status: r.rentalStatus,
+      };
+    });
+
+    res.json(report);
+  } catch (error) {
+    console.error("Rental report error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-const revenueReport = async (req, res) => {
+const getCustomerReport = async (req, res) => {
   try {
-    const { from, to } = req.query;
-    const dateFilter = {};
-    if (from) dateFilter.$gte = new Date(from);
-    if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      dateFilter.$lte = toDate;
-    }
+    const { startDate, endDate } = req.query;
+    const customers = await Customer.find().lean();
+    const rentals = await Rental.find().populate("customer").lean();
 
-    const query = Object.keys(dateFilter).length ? { createdAt: dateFilter } : {};
-
-    const rentals = await Rental.find(query).populate("inventory").lean();
-
-    let totalRevenue = 0;
-    let paidRevenue = 0;
-    let unpaidRevenue = 0;
-    let partialRevenue = 0;
-
-    // Monthly breakdown
-    const monthlyMap = {};
+    const customerSpentMap = {};
+    const customerLastRentalMap = {};
 
     rentals.forEach((r) => {
-      const price = r.inventory?.price || 0;
-      const start = new Date(r.startDate);
-      const end = new Date(r.endDate);
-      const days = Math.max(
-        1,
-        Math.round((end - start) / (1000 * 60 * 60 * 24))
-      );
-      const amount = price * days;
-
-      totalRevenue += amount;
-      if (r.paymentStatus === "paid") paidRevenue += amount;
-      else if (r.paymentStatus === "unpaid") unpaidRevenue += amount;
-      else if (r.paymentStatus === "partial") partialRevenue += amount;
-
-      // Group by month (YYYY-MM)
-      const month = start.toISOString().slice(0, 7);
-      if (!monthlyMap[month]) monthlyMap[month] = { month, revenue: 0, rentals: 0 };
-      monthlyMap[month].revenue += amount;
-      monthlyMap[month].rentals += 1;
-    });
-
-    const monthly = Object.values(monthlyMap).sort((a, b) =>
-      a.month.localeCompare(b.month)
-    );
-
-    // Top 5 most-rented suits
-    const suitCountMap = {};
-    rentals.forEach((r) => {
-      if (!r.inventory) return;
-      const id = String(r.inventory._id);
-      if (!suitCountMap[id]) {
-        suitCountMap[id] = { name: r.inventory.name, count: 0, revenue: 0 };
+      if (r.customer) {
+        const custId = String(r.customer._id);
+        customerSpentMap[custId] = (customerSpentMap[custId] || 0) + (r.totalAmount || 0);
+        if (!customerLastRentalMap[custId] || new Date(r.createdAt) > new Date(customerLastRentalMap[custId])) {
+          customerLastRentalMap[custId] = r.createdAt;
+        }
       }
-      const price = r.inventory.price || 0;
-      const days = Math.max(
-        1,
-        Math.round(
-          (new Date(r.endDate) - new Date(r.startDate)) / (1000 * 60 * 60 * 24)
-        )
-      );
-      suitCountMap[id].count += 1;
-      suitCountMap[id].revenue += price * days;
     });
-    const topSuits = Object.values(suitCountMap)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
 
-    res.json({
-      summary: {
-        totalRentals: rentals.length,
-        totalRevenue,
-        paidRevenue,
-        unpaidRevenue,
-        partialRevenue,
-        activeRentals: rentals.filter((r) => r.status === "active").length,
-        returnedRentals: rentals.filter((r) => r.status === "returned").length,
-      },
-      monthly,
-      topSuits,
-    });
+    const report = customers.map((c) => ({
+      _id: c._id,
+      customer: c.name,
+      totalRentals: c.totalRentals || 0,
+      totalSpent: customerSpentMap[String(c._id)] || 0,
+      lastRental: customerLastRentalMap[String(c._id)]
+        ? new Date(customerLastRentalMap[String(c._id)]).toISOString().split("T")[0]
+        : "N/A",
+    }));
+
+    res.json(report);
   } catch (error) {
-    console.error("Error generating revenue report:", error);
-    res.status(500).json({ message: "Internal server error occurred" });
+    console.error("Customer report error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-
-const dashboardReport = async (req, res) => {
+const getSuitReport = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const suits = await Suit.find().lean();
+    const rentals = await Rental.find().populate("suit").lean();
 
-    const [
-      totalSuits,
-      availableSuits,
-      rentedSuits,
-      maintenanceSuits,
-      totalRentals,
-      activeRentals,
-      returnedToday,
-      overdueRentals,
-    ] = await Promise.all([
-      Inventory.countDocuments(),
-      Inventory.countDocuments({ status: "available" }),
-      Inventory.countDocuments({ status: "rental" }),
-      Inventory.countDocuments({ status: "maintenance" }),
-      Rental.countDocuments(),
-      Rental.countDocuments({ status: "active" }),
-      Rental.countDocuments({
-        status: "returned",
-        returnedAt: { $gte: today, $lt: tomorrow },
-      }),
-      Rental.countDocuments({
-        status: "active",
-        endDate: { $lt: today },
-      }),
-    ]);
+    const suitRentalCount = {};
+    const suitRevenueMap = {};
 
-    // Revenue this month
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthlyRentals = await Rental.find({
-      createdAt: { $gte: startOfMonth },
-    }).populate("inventory");
-
-    let monthlyRevenue = 0;
-    monthlyRentals.forEach((r) => {
-      const price = r.inventory?.price || 0;
-      const days = Math.max(
-        1,
-        Math.round(
-          (new Date(r.endDate) - new Date(r.startDate)) / (1000 * 60 * 60 * 24)
-        )
-      );
-      monthlyRevenue += price * days;
+    rentals.forEach((r) => {
+      if (r.suit) {
+        const suitId = String(r.suit._id);
+        suitRentalCount[suitId] = (suitRentalCount[suitId] || 0) + 1;
+        suitRevenueMap[suitId] = (suitRevenueMap[suitId] || 0) + (r.totalAmount || 0);
+      }
     });
 
-    // Monthly breakdown for charts
-    const allRentals = await Rental.find().populate("inventory").lean();
-    const monthlyMap = {};
+    const report = suits.map((s) => ({
+      _id: s._id,
+      suit: s.name,
+      category: s.category,
+      timesRented: suitRentalCount[String(s._id)] || 0,
+      revenue: suitRevenueMap[String(s._id)] || 0,
+      status: s.status,
+    }));
 
-    allRentals.forEach((r) => {
-      const price = r.inventory?.price || 0;
-      const start = new Date(r.startDate);
-      const end = new Date(r.endDate);
-      const days = Math.max(
-        1,
-        Math.round((end - start) / (1000 * 60 * 60 * 24))
-      );
-      const amount = price * days;
-
-      const month = start.toISOString().slice(0, 7);
-      if (!monthlyMap[month]) monthlyMap[month] = { month, revenue: 0, rentals: 0 };
-      monthlyMap[month].revenue += amount;
-      monthlyMap[month].rentals += 1;
-    });
-
-    const monthly = Object.values(monthlyMap).sort((a, b) =>
-      a.month.localeCompare(b.month)
-    );
-
-    // Recent rentals (last 5)
-    const recentRentals = await Rental.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .populate("inventory")
-      .lean();
-
-    res.json({
-      suits: { total: totalSuits, available: availableSuits, rented: rentedSuits, maintenance: maintenanceSuits },
-      rentals: { total: totalRentals, active: activeRentals, returnedToday, overdue: overdueRentals },
-      monthlyRevenue,
-      monthly,
-      recentRentals,
-    });
+    res.json(report);
   } catch (error) {
-    console.error("Error generating dashboard report:", error);
-    res.status(500).json({ message: "Internal server error occurred" });
+    console.error("Suit report error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = { inventoryReport, revenueReport, dashboardReport };
+module.exports = {getRevenueReport, getRentalReport, getCustomerReport, getSuitReport};

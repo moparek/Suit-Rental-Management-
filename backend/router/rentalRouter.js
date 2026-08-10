@@ -1,16 +1,22 @@
 const express = require("express");
-const rentalController = require("../controllers/rentalController");
+const {
+  getRentals,
+  getRental,
+  createRental,
+  updateRental,
+  deleteRental,
+} = require("../controllers/rentalController");
+const { protect } = require("../middleware/auth");
 
 const router = express.Router();
 
-// CRUD
-router.post("/create", rentalController.addRental);
-router.get("/getAll", rentalController.getAllRentals);
-router.get("/getOne/:id", rentalController.findRentalById);
-router.put("/update/:id", rentalController.updateRental);
-router.delete("/delete/:id", rentalController.deleteRental);
+router.route("/")
+  .get(protect, getRentals)
+  .post(protect, createRental);
 
-// Return workflow
-router.patch("/return/:id", rentalController.returnRental);
+router.route("/:id")
+  .get(protect, getRental)
+  .put(protect, updateRental)
+  .delete(protect, deleteRental);
 
 module.exports = router;
