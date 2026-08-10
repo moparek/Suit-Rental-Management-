@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -32,6 +32,8 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   register: (data) => api.post("/auth/register", data),
+  getProfile: () => api.get("/auth/profile"),
+  updateProfile: (data) => api.put("/auth/profile", data),
 };
 
 // ---------- Suits ----------
@@ -82,6 +84,14 @@ export const bookingAPI = {
 // ---------- Dashboard ----------
 export const dashboardAPI = {
   getStats: () => api.get("/dashboard/stats"),
+};
+
+// ---------- Reports ----------
+export const reportAPI = {
+  getRevenue: () => api.get("/reports/revenue"),
+  getRentals: () => api.get("/reports/rentals"),
+  getCustomers: () => api.get("/reports/customers"),
+  getSuits: () => api.get("/reports/suits"),
 };
 
 export default api;
