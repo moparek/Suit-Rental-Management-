@@ -1,0 +1,207 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { rentalAPI, customerAPI } from "../services/api";
+import Loader from "../components/Loader";
+import Alert from "../components/Alert";
+import SearchBar from "../components/SearchBar";
+import Pagination from "../components/Pagination";
+import Modal from "../components/Modal";
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+
+const PAGE_SIZE = 8;
+
+// How many days between two date strings — shown as the rental duration
+function daysBetween(start, end) {
+  if (!start || !end) return null;
+  const ms = new Date(end) - new Date(start);
+  return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)));
+}
+
+function RentalList() {
+  const [rentals, setRentals] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [deleteId, setDeleteId] = useState(null);
+
+  const fetchRentals = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [rentalsRes, customersRes] = await Promise.all([
+        rentalAPI.getAll(),
+        customerAPI.getAll(),
+      ]);
+      setRentals(rentalsRes.data.rentals || rentalsRes.data || []);
+      setCustomers(customersRes.data.customers || customersRes.data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load rentals");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Look up the customer's National ID by their id, in case the rental
+  // record itself only stores a name/id reference.
+  const getNationalId = (customerRef) => {
+    const id = customerRef?._id || customerRef;
+    const match = customers.find((c) => c._id === id);
+    return match?.nationalId || customerRef?.nationalId || "-";
+  };
+
+  useEffect(() => {
+    fetchRentals();
+  }, []);
+
+  const handleDelete = async () => {
+    try {
+      await rentalAPI.delete(deleteId);
+      setSuccess("Rental deleted successfully");
+      setDeleteId(null);
+      fetchRentals();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete rental");
+      setDeleteId(null);
+    }
+  };
+
+  const filtered = rentals.filter(
+    (r) =>
+      r.customer?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      r.suit?.name?.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  return (
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 className="fw-bold mb-0">Rentals</h3>
+        <Link
+          to="/rentals/add"
+          className="btn btn-primary d-flex align-items-center gap-2"
+        >
+          <FaPlus /> New Rental
+        </Link>
+      </div>
+
+      {error && (
+        <Alert type="danger" message={error} onClose={() => setError("")} />
+      )}
+      {success && (
+        <Alert
+          type="success"
+          message={success}
+          onClose={() => setSuccess("")}
+        />
+      )}
+
+      <div className="card p-3 mb-4">
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by customer or suit name..."
+        />
+      </div>
+
+      {loading ? (
+        <Loader text="Loading rentals..." />
+      ) : paginated.length === 0 ? (
+        <div className="card p-5 text-center text-muted">No rentals found.</div>
+      ) : (
+        <div className="card p-3">
+          <div className="table-responsive">
+            <table className="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>National ID</th>
+                  <th>Suit</th>
+                  <th>Days</th>
+                  <th>Rental Date</th>
+                  <th>Return Date</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th className="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((r) => (
+                  <tr key={r._id}>
+                    <td>{r.customer?.fullName || "-"}</td>
+                    <td>
+                      <code>{getNationalId(r.customer)}</code>
+                    </td>
+                    <td>{r.suit?.name || "-"}</td>
+                    <td>{daysBetween(r.rentalDate, r.returnDate) ?? "-"}</td>
+                    <td>
+                      {r.rentalDate
+                        ? new Date(r.rentalDate).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td>
+                      {r.returnDate
+                        ? new Date(r.returnDate).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td>
+                      <span
+                        className={`badge bg-${r.status === "Returned" ? "success" : "warning"}`}
+                      >
+                        {r.status}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`badge bg-${r.paymentStatus === "Paid" ? "success" : "danger"}`}
+                      >
+                        {r.paymentStatus}
+                      </span>
+                    </td>
+                    <td className="text-end">
+                      <Link
+                        to={`/rentals/edit/${r._id}`}
+                        className="btn btn-sm btn-outline-primary me-1"
+                      >
+                        <FaEdit />
+                      </Link>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => setDeleteId(r._id)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
+
+      <Modal
+        show={!!deleteId}
+        title="Delete Rental"
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        confirmText="Delete"
+      >
+        Are you sure you want to delete this rental record? This action cannot
+        be undone.
+      </Modal>
+    </div>
+  );
+}
+
+export default RentalList;
