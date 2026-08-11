@@ -23,9 +23,11 @@ const getSuit = async (req, res) => {
 };
 const createSuit = async (req, res) => {
   try {
-    const { name, category, size, color, dailyRate, status, condition, description, image } = req.body;
+    const { name, category, size, color, condition, description, image } = req.body;
+    const dailyRate = req.body.dailyRate !== undefined ? req.body.dailyRate : (req.body.rentalPrice !== undefined ? req.body.rentalPrice : req.body.price);
+    const status = req.body.status || (req.body.availability === false ? "rented" : "available");
 
-    if (!name || !category || !size || !color || dailyRate === undefined) {
+    if (!name || !category || !size || !color || dailyRate === undefined || dailyRate === "") {
       return res.status(400).json({ message: "Name, category, size, color, and daily rate are required" });
     }
 
@@ -34,8 +36,8 @@ const createSuit = async (req, res) => {
       category,
       size,
       color,
-      dailyRate,
-      status: status || "available",
+      dailyRate: Number(dailyRate),
+      status,
       condition: condition || "good",
       description,
       image,
@@ -49,7 +51,10 @@ const createSuit = async (req, res) => {
 };
 const updateSuit = async (req, res) => {
   try {
-    const { name, category, size, color, dailyRate, status, condition, description, image } = req.body;
+    const { name, category, size, color, condition, description, image } = req.body;
+    const dailyRate = req.body.dailyRate !== undefined ? req.body.dailyRate : (req.body.rentalPrice !== undefined ? req.body.rentalPrice : req.body.price);
+    const status = req.body.status || (req.body.availability !== undefined ? (req.body.availability ? "available" : "rented") : undefined);
+
     const suit = await Suit.findById(req.params.id);
 
     if (!suit) {
@@ -60,7 +65,7 @@ const updateSuit = async (req, res) => {
     if (category) suit.category = category;
     if (size) suit.size = size;
     if (color) suit.color = color;
-    if (dailyRate !== undefined) suit.dailyRate = dailyRate;
+    if (dailyRate !== undefined && dailyRate !== "") suit.dailyRate = Number(dailyRate);
     if (status) suit.status = status;
     if (condition) suit.condition = condition;
     if (description !== undefined) suit.description = description;
