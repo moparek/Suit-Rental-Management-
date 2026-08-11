@@ -1,0 +1,11 @@
+:root {
+  --sidebar-width: 240px;
+  --sidebar-bg: #1e1e2d;
+  --sidebar-active: #4361ee;
+  --content-bg: #f4f6f9;
+}
+
+body {
+  background-color: var(--content-bg);
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
