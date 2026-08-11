@@ -1,5 +1,12 @@
 const Customer = require("../Models/customerModel");
 
+const normalizeIdType = (idType) => {
+  if (!idType) return null;
+  const normalized = String(idType).toLowerCase().replace(/\s+/g, "");
+  if (normalized === "nationalid" || normalized === "national_id") return "nationalId";
+  if (normalized === "passport") return "passport";
+  return null;
+};
 
 const getCustomers = async (req, res) => {
   try {
@@ -28,9 +35,14 @@ const createCustomer = async (req, res) => {
   try {
     const { phone, email, address, status } = req.body;
     const name = req.body.name || req.body.fullName;
+    const idType = normalizeIdType(req.body.idType);
 
     if (!name || !phone) {
       return res.status(400).json({ message: "Customer name and phone number are required" });
+    }
+
+    if (!idType) {
+      return res.status(400).json({ message: "ID type is required" });
     }
 
     const customer = await Customer.create({
@@ -38,12 +50,16 @@ const createCustomer = async (req, res) => {
       phone,
       email,
       address,
+      idType,
       status: status || "active",
     });
 
     res.status(201).json(customer);
   } catch (error) {
     console.error("Create customer error:", error);
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: Object.values(error.errors).map((e) => e.message).join(", ") });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -52,6 +68,7 @@ const updateCustomer = async (req, res) => {
   try {
     const { phone, email, address, status } = req.body;
     const name = req.body.name || req.body.fullName;
+    const idType = normalizeIdType(req.body.idType);
     const customer = await Customer.findById(req.params.id);
 
     if (!customer) {
@@ -63,11 +80,15 @@ const updateCustomer = async (req, res) => {
     if (email !== undefined) customer.email = email;
     if (address !== undefined) customer.address = address;
     if (status) customer.status = status;
+    if (idType) customer.idType = idType;
 
     const updatedCustomer = await customer.save();
     res.json(updatedCustomer);
   } catch (error) {
     console.error("Update customer error:", error);
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: Object.values(error.errors).map((e) => e.message).join(", ") });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };

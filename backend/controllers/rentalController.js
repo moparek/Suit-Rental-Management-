@@ -26,7 +26,7 @@ const calculateRentalDays = (startDate, endDate) => {
 const getRentals = async (req, res) => {
   try {
     const rentals = await Rental.find()
-      .populate("customer", "name phone email")
+      .populate("customer", "name phone email idType")
       .populate("suit", "name category size color dailyRate")
       .sort({ createdAt: -1 });
     res.json(rentals);
@@ -40,7 +40,7 @@ const getRentals = async (req, res) => {
 const getRental = async (req, res) => {
   try {
     const rental = await Rental.findById(req.params.id)
-      .populate("customer", "name phone email")
+      .populate("customer", "name phone email idType")
       .populate("suit", "name category size color dailyRate");
 
     if (!rental) {
@@ -111,7 +111,7 @@ const createRental = async (req, res) => {
     await Customer.findByIdAndUpdate(customer, { $inc: { totalRentals: 1 } });
 
     const populatedRental = await Rental.findById(rental._id)
-      .populate("customer", "name phone email")
+      .populate("customer", "name phone email idType")
       .populate("suit", "name category size color dailyRate");
 
     res.status(201).json(populatedRental);
@@ -187,7 +187,7 @@ const updateRental = async (req, res) => {
     const updatedRental = await rental.save();
 
     const populatedRental = await Rental.findById(updatedRental._id)
-      .populate("customer", "name phone email")
+      .populate("customer", "name phone email idType")
       .populate("suit", "name category size color dailyRate");
 
     res.json(populatedRental);
