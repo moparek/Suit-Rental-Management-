@@ -10,6 +10,11 @@ import { FaEdit, FaTrash, FaPlus, FaHistory } from "react-icons/fa";
 
 const PAGE_SIZE = 8;
 
+function formatCustomerId(customer) {
+  if (!customer?.idType) return "-";
+  return customer.idType === "passport" ? "Passport" : "National ID";
+}
+
 function CustomerList() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +58,8 @@ function CustomerList() {
     (c) =>
       c.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       c.email?.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone?.includes(search),
+      c.phone?.includes(search) ||
+      formatCustomerId(c).toLowerCase().includes(search.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
@@ -105,6 +111,7 @@ function CustomerList() {
                   <th>Full Name</th>
                   <th>Phone</th>
                   <th>Email</th>
+                  <th>ID</th>
                   <th>Address</th>
                   <th className="text-end">Actions</th>
                 </tr>
@@ -115,6 +122,7 @@ function CustomerList() {
                     <td>{c.fullName}</td>
                     <td>{c.phone}</td>
                     <td>{c.email}</td>
+                    <td><code>{formatCustomerId(c)}</code></td>
                     <td>{c.address}</td>
                     <td className="text-end">
                       <button

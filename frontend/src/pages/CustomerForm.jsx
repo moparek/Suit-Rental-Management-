@@ -4,7 +4,13 @@ import { customerAPI } from "../services/api";
 import Alert from "../components/Alert";
 import Loader from "../components/Loader";
 
-const initialState = { fullName: "", phone: "", email: "", address: "" };
+const initialState = {
+  fullName: "",
+  phone: "",
+  email: "",
+  address: "",
+  idType: "nationalId",
+};
 
 function CustomerForm() {
   const { id } = useParams();
@@ -23,7 +29,12 @@ function CustomerForm() {
       setLoading(true);
       try {
         const res = await customerAPI.getOne(id);
-        setForm({ ...initialState, ...res.data });
+        setForm({
+          ...initialState,
+          ...res.data,
+          fullName: res.data.fullName || res.data.name || "",
+          idType: res.data.idType || "nationalId",
+        });
       } catch (err) {
         setServerError(
           err.response?.data?.message || "Failed to load customer",
@@ -45,6 +56,7 @@ function CustomerForm() {
     else if (!/\S+@\S+\.\S+/.test(form.email))
       errs.email = "Invalid email format";
     if (!form.address) errs.address = "Address is required";
+    if (!form.idType) errs.idType = "Please select an ID type";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -130,6 +142,20 @@ function CustomerForm() {
               />
               {errors.address && (
                 <div className="invalid-feedback">{errors.address}</div>
+              )}
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label">ID Type</label>
+              <select
+                className={`form-select ${errors.idType ? "is-invalid" : ""}`}
+                value={form.idType}
+                onChange={(e) => setForm({ ...form, idType: e.target.value })}
+              >
+                <option value="nationalId">National ID</option>
+                <option value="passport">Passport</option>
+              </select>
+              {errors.idType && (
+                <div className="invalid-feedback">{errors.idType}</div>
               )}
             </div>
           </div>
