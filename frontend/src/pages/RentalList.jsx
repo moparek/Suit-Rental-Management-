@@ -10,6 +10,19 @@ import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
 const PAGE_SIZE = 8;
 
+function paymentBadgeClass(status) {
+  const normalized = String(status || "").toLowerCase();
+  if (normalized === "paid") return "success";
+  if (normalized === "partial") return "secondary";
+  return "danger";
+}
+
+function formatPaymentStatus(status) {
+  if (!status) return "Pending";
+  const normalized = String(status).toLowerCase();
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
 // How many days between two date strings — shown as the rental duration
 function daysBetween(start, end) {
   if (!start || !end) return null;
@@ -44,12 +57,13 @@ function RentalList() {
     }
   };
 
-  // Look up the customer's National ID by their id, in case the rental
-  // record itself only stores a name/id reference.
-  const getNationalId = (customerRef) => {
+  // Look up the customer's ID by their reference on the rental record.
+  const getCustomerId = (customerRef) => {
     const id = customerRef?._id || customerRef;
     const match = customers.find((c) => c._id === id);
-    return match?.nationalId || customerRef?.nationalId || "-";
+    const customer = match || customerRef;
+    if (!customer?.idType) return "-";
+    return customer.idType === "passport" ? "Passport" : "National ID";
   };
 
   useEffect(() => {
@@ -119,7 +133,7 @@ function RentalList() {
               <thead>
                 <tr>
                   <th>Customer</th>
-                  <th>National ID</th>
+                  <th>ID</th>
                   <th>Suit</th>
                   <th>Days</th>
                   <th>Rental Date</th>
@@ -132,9 +146,9 @@ function RentalList() {
               <tbody>
                 {paginated.map((r) => (
                   <tr key={r._id}>
-                    <td>{r.customer?.fullName || "-"}</td>
+                    <td>{r.customer?.fullName || r.customer?.name || "-"}</td>
                     <td>
-                      <code>{getNationalId(r.customer)}</code>
+                      <code>{getCustomerId(r.customer)}</code>
                     </td>
                     <td>{r.suit?.name || "-"}</td>
                     <td>{daysBetween(r.rentalDate, r.returnDate) ?? "-"}</td>
@@ -157,9 +171,9 @@ function RentalList() {
                     </td>
                     <td>
                       <span
-                        className={`badge bg-${r.paymentStatus === "Paid" ? "success" : "danger"}`}
+                        className={`badge bg-${paymentBadgeClass(r.paymentStatus)}`}
                       >
-                        {r.paymentStatus}
+                        {formatPaymentStatus(r.paymentStatus)}
                       </span>
                     </td>
                     <td className="text-end">
