@@ -76,7 +76,15 @@ rentalSchema.virtual("status").get(function () {
   this.rentalStatus = v;
 });
 
-rentalSchema.set("toJSON", { virtuals: true });
+rentalSchema.set("toJSON", {
+  virtuals: true,
+  transform: (_doc, ret) => {
+    if (!ret.returnDate && ret.endDate) {
+      ret.returnDate = ret.endDate;
+    }
+    return ret;
+  },
+});
 rentalSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Rental", rentalSchema);

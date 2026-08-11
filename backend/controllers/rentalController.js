@@ -2,6 +2,27 @@ const Rental = require("../Models/rentalModel");
 const Suit = require("../Models/suitModel");
 const Customer = require("../Models/customerModel");
 
+const normalizeRentalStatus = (status) => {
+  if (!status) return "active";
+  const normalized = String(status).toLowerCase();
+  const allowed = ["reserved", "active", "returned", "overdue", "cancelled"];
+  return allowed.includes(normalized) ? normalized : "active";
+};
+
+const normalizePaymentStatus = (status) => {
+  if (!status) return "pending";
+  const normalized = String(status).toLowerCase();
+  const allowed = ["pending", "partial", "paid", "refunded"];
+  return allowed.includes(normalized) ? normalized : "pending";
+};
+
+const calculateRentalDays = (startDate, endDate) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diff = Math.ceil((end - start) / 86400000);
+  return Math.max(1, diff);
+};
+
 const getRentals = async (req, res) => {
   try {
     const rentals = await Rental.find()
@@ -37,9 +58,7 @@ const createRental = async (req, res) => {
     const {
       customer,
       suit,
-      totalAmount,
       deposit,
-      paymentStatus,
       notes,
     } = req.body;
 
@@ -50,16 +69,23 @@ const createRental = async (req, res) => {
       endDate = new Date(new Date(startDate).getTime() + Number(req.body.rentalDays) * 86400000);
     }
 
-    const rentalStatus = req.body.rentalStatus || req.body.status || "active";
+    const rentalStatus = normalizeRentalStatus(req.body.rentalStatus || req.body.status);
+    const paymentStatus = normalizePaymentStatus(req.body.paymentStatus);
 
-    if (!customer || !suit || !startDate || !endDate || totalAmount === undefined) {
-      return res.status(400).json({ message: "Customer, suit, rental date, return date, and total amount are required" });
+    if (!customer || !suit || !startDate || !endDate) {
+      return res.status(400).json({ message: "Customer, suit, rental date, and return date are required" });
     }
 
     const suitItem = await Suit.findById(suit);
     if (!suitItem) {
       return res.status(404).json({ message: "Suit not found" });
     }
+
+    const rentalDays = calculateRentalDays(startDate, endDate);
+    const totalAmount =
+      req.body.totalAmount !== undefined
+        ? Number(req.body.totalAmount)
+        : rentalDays * suitItem.dailyRate;
 
     const rental = await Rental.create({
       customer,
@@ -70,7 +96,7 @@ const createRental = async (req, res) => {
       totalAmount,
       deposit: deposit || 0,
       balance: totalAmount - (deposit || 0),
-      paymentStatus: paymentStatus || "pending",
+      paymentStatus,
       rentalStatus,
       notes,
     });
@@ -91,6 +117,9 @@ const createRental = async (req, res) => {
     res.status(201).json(populatedRental);
   } catch (error) {
     console.error("Create rental error:", error);
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: Object.values(error.errors).map((e) => e.message).join(", ") });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -100,15 +129,15 @@ const updateRental = async (req, res) => {
     const {
       customer,
       suit,
-      startDate,
-      endDate,
-      returnDate,
-      totalAmount,
       deposit,
-      paymentStatus,
-      rentalStatus,
       notes,
     } = req.body;
+
+    const startDate = req.body.startDate || req.body.rentalDate;
+    const endDate = req.body.endDate || req.body.returnDate;
+    const rentalStatus = req.body.rentalStatus || req.body.status;
+    const paymentStatus = req.body.paymentStatus;
+    let { totalAmount } = req.body;
 
     const rental = await Rental.findById(req.params.id);
 
@@ -120,24 +149,39 @@ const updateRental = async (req, res) => {
     if (suit) rental.suit = suit;
     if (startDate) rental.startDate = startDate;
     if (endDate) rental.endDate = endDate;
-    if (returnDate !== undefined) rental.returnDate = returnDate;
-    if (totalAmount !== undefined) rental.totalAmount = totalAmount;
     if (deposit !== undefined) rental.deposit = deposit;
-    if (paymentStatus) rental.paymentStatus = paymentStatus;
+    if (paymentStatus) rental.paymentStatus = normalizePaymentStatus(paymentStatus);
     if (notes !== undefined) rental.notes = notes;
 
-    // Handle status change transitions
-    if (rentalStatus && rentalStatus !== rental.rentalStatus) {
-      rental.rentalStatus = rentalStatus;
+    if (totalAmount === undefined && (startDate || endDate || suit)) {
+      const suitId = suit || rental.suit;
+      const suitItem = await Suit.findById(suitId);
+      if (suitItem) {
+        const days = calculateRentalDays(
+          startDate || rental.startDate,
+          endDate || rental.endDate
+        );
+        totalAmount = days * suitItem.dailyRate;
+      }
+    }
+    if (totalAmount !== undefined) rental.totalAmount = totalAmount;
 
-      if (rentalStatus === "returned") {
-        rental.returnDate = returnDate || new Date();
+    const normalizedRentalStatus = rentalStatus ? normalizeRentalStatus(rentalStatus) : null;
+
+    // Handle status change transitions
+    if (normalizedRentalStatus && normalizedRentalStatus !== rental.rentalStatus) {
+      rental.rentalStatus = normalizedRentalStatus;
+
+      if (normalizedRentalStatus === "returned") {
+        rental.returnDate = req.body.actualReturnDate || new Date();
         await Suit.findByIdAndUpdate(rental.suit, { status: "available" });
-      } else if (rentalStatus === "active") {
+      } else if (normalizedRentalStatus === "active") {
         await Suit.findByIdAndUpdate(rental.suit, { status: "rented" });
-      } else if (rentalStatus === "cancelled") {
+      } else if (normalizedRentalStatus === "cancelled") {
         await Suit.findByIdAndUpdate(rental.suit, { status: "available" });
       }
+    } else if (normalizedRentalStatus) {
+      rental.rentalStatus = normalizedRentalStatus;
     }
 
     const updatedRental = await rental.save();
@@ -149,6 +193,9 @@ const updateRental = async (req, res) => {
     res.json(populatedRental);
   } catch (error) {
     console.error("Update rental error:", error);
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: Object.values(error.errors).map((e) => e.message).join(", ") });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
