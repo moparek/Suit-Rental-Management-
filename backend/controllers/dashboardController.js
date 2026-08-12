@@ -50,6 +50,23 @@ const getDashboardStats = async (req, res) => {
       revenue: monthlyMap[month],
     }));
 
+    const monthlyRentalMap = {};
+    months.forEach((m) => {
+      monthlyRentalMap[m] = 0;
+    });
+
+    rentalsList.forEach((rental) => {
+      if (rental.createdAt) {
+        const monthName = months[new Date(rental.createdAt).getMonth()];
+        monthlyRentalMap[monthName] += 1;
+      }
+    });
+
+    const monthlyRentals = months.map((month) => ({
+      month,
+      count: monthlyRentalMap[month],
+    }));
+
     // Rentals by category
     const categoryMap = {};
     rentalsList.forEach((rental) => {
@@ -77,6 +94,7 @@ const getDashboardStats = async (req, res) => {
       totalRevenue,
       pendingBookings,
       monthlyRevenue,
+      monthlyRentals,
       rentalsByCategory,
     });
   } catch (error) {
