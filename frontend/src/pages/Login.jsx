@@ -85,9 +85,9 @@ function Login() {
           </button>
         </form>
 
-        <p className="text-center mt-3 mb-0">
+        {/* <p className="text-center mt-3 mb-0">
           Don't have an account? <Link to="/register">Register</Link>
-        </p>
+        </p> */}
       </div>
     </div>
   );
