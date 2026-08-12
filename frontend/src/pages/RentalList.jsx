@@ -30,6 +30,11 @@ function daysBetween(start, end) {
   return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)));
 }
 
+function isReturned(rental) {
+  const status = rental.status || rental.rentalStatus || "";
+  return String(status).toLowerCase() === "returned";
+}
+
 function RentalList() {
   const [rentals, setRentals] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -82,11 +87,13 @@ function RentalList() {
     }
   };
 
-  const filtered = rentals.filter(
-    (r) =>
-      r.customer?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-      r.suit?.name?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rentals
+    .filter((r) => !isReturned(r))
+    .filter(
+      (r) =>
+        r.customer?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+        r.suit?.name?.toLowerCase().includes(search.toLowerCase()),
+    );
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
