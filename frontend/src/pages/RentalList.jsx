@@ -30,9 +30,10 @@ function daysBetween(start, end) {
   return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)));
 }
 
-function isReturned(rental) {
+function isHiddenFromList(rental) {
   const status = rental.status || rental.rentalStatus || "";
-  return String(status).toLowerCase() === "returned";
+  const normalized = String(status).toLowerCase();
+  return normalized === "returned" || normalized === "cancelled";
 }
 
 function RentalList() {
@@ -88,7 +89,7 @@ function RentalList() {
   };
 
   const filtered = rentals
-    .filter((r) => !isReturned(r))
+    .filter((r) => !isHiddenFromList(r))
     .filter(
       (r) =>
         r.customer?.fullName?.toLowerCase().includes(search.toLowerCase()) ||

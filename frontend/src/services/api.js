@@ -83,7 +83,7 @@ export const bookingAPI = {
 
 // ---------- Dashboard ----------
 export const dashboardAPI = {
-  getStats: () => api.get("/dashboard/stats"),
+  getStats: (params) => api.get("/dashboard/stats", { params }),
 };
 
 // ---------- Reports ----------
