@@ -61,7 +61,7 @@ Purpose: To digitalize and automate the suit rental business, reducing manual wo
 # Backend Setup
 
 
-bash
+```bash
 # 1. Clone repository
 git clone -b backend https://github.com/moparek/Suit-Rental-Management-.git backend-project
 cd backend-project
@@ -119,6 +119,7 @@ Localhost running on http://localhost:3000
 
 
 
+```
 ---
 
   Environment Variables Configuration
@@ -126,7 +127,7 @@ Localhost running on http://localhost:3000
 # Backend (.env)
 
 
-env
+```env
 # Database Connection
 MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/suit-rental
 
@@ -172,6 +173,7 @@ MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/suit-rental?ret
 
 
 
+```
 ---
 
   API Endpoints Documentation
@@ -189,7 +191,7 @@ MONGODB_URI=mongodb+srv://username:password@cluster0.mongodb.net/suit-rental?ret
 
 Example Login Request:
 
-json
+```json
 POST /api/auth/login
 {
   "email": "user@example.com",
@@ -213,6 +215,7 @@ json
 
 
 
+```
 ---
 
 # Users Endpoints
@@ -240,7 +243,7 @@ json
 
 Example Suit Response:
 
-json
+```json
 {
   "_id": "suit_id",
   "name": "Classic Black Suit",
@@ -254,6 +257,7 @@ json
 
 
 
+```
 ---
 
 # Customers Endpoints
@@ -280,7 +284,7 @@ json
 
 Example Rental Request:
 
-json
+```json
 POST /api/rentals
 {
   "customerId": "customer_id",
@@ -293,6 +297,7 @@ POST /api/rentals
 
 
 
+```
 ---
 
 # Bookings Endpoints
@@ -325,7 +330,7 @@ POST /api/rentals
 
 Example Dashboard Response:
 
-json
+```json
 {
   "totalRentals": 45,
   "totalRevenue": 2250,
@@ -336,6 +341,7 @@ json
 
 
 
+```
 ---
 
   Implemented Features
@@ -525,7 +531,7 @@ Solution:
 - Added MongoDB Atlas connection guide
 
 
-javascript
+```javascript
 // db.config.js
 if (!process.env.MONGODB_URI) {
   throw new Error('MONGODB_URI is not defined in .env file');
@@ -533,6 +539,7 @@ if (!process.env.MONGODB_URI) {
 
 
 
+```
 ---
 
 # Challenge 2: CORS (Cross-Origin Resource Sharing) Errors
@@ -545,7 +552,7 @@ Solution:
 - Configured credentials for token-based auth
 
 
-javascript
+```javascript
 // server.js
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
@@ -554,6 +561,7 @@ app.use(cors({
 
 
 
+```
 ---
 
 # Challenge 3: Authentication Token Management
@@ -567,7 +575,7 @@ Solution:
 - Implemented logout functionality
 
 
-javascript
+```javascript
 // api.js
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL
@@ -583,6 +591,7 @@ api.interceptors.request.use((config) => {
 
 
 
+```
 ---
 
 # Challenge 4: Rental Cost Calculation
@@ -595,7 +604,7 @@ Solution:
 - Added test cases for various scenarios
 
 
-javascript
+```javascript
 // utils.js
 const calculateRentalCost = (days, dailyRate) => {
   if (days >= 7 && days < 30) return days * dailyRate * 0.9;
@@ -605,6 +614,7 @@ const calculateRentalCost = (days, dailyRate) => {
 
 
 
+```
 ---
 
 # Challenge 5: Real-time Inventory Synchronization
@@ -617,7 +627,7 @@ Solution:
 - Created refresh mechanism on Frontend
 
 
-javascript
+```javascript
 // rentalController.js
 const createRental = async (req, res) => {
   const suit = await Suit.findById(req.body.suitId);
@@ -631,6 +641,7 @@ const createRental = async (req, res) => {
 
 
 
+```
 ---
 
   Future Improvements
@@ -697,7 +708,7 @@ const createRental = async (req, res) => {
   Support & Contact
 
 For questions or issues:
-- GitHub Issues: https://github.com/moparek/Suit-Rental-Management-/issues
+- GitHub Issues: [Suit Rental Management Issues](https://github.com/moparek/Suit-Rental-Management-/issues)
 - Email: axmed.development@gmail.com
 
 ---
@@ -711,7 +722,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
  Quick Start Summary
 
 
-bash
+```bash
 # Terminal 1 - Backend
 git clone -b backend https://github.com/moparek/Suit-Rental-Management-.git backend
 cd backend
@@ -728,10 +739,9 @@ npm start
 
 
 
+```
 ---
 
 Made with  by the Suit Rental Management Team
 
-#   s u i t - r e n t a l - m a n a g a m e n t 
- 
- 
+#
