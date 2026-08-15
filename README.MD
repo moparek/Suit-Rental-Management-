@@ -54,7 +54,7 @@ Purpose: To digitalize and automate the suit rental business, reducing manual wo
 
 # Prerequisites
 - Node.js (v14 or higher)
-- npm or yarn
+- npm 
 - MongoDB (local or MongoDB Atlas account)
 - Git
 
@@ -102,7 +102,9 @@ cd frontend-project
 npm install
 
 # 3. Create .env file
-echo "REACT_APP_API_URL=http://localhost:5000/api" > .env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/suit
+JWT_SECRET=Tele-Som_A44%cdem.dsa//proje!@ject|fin&^project#12
 
 # 4. Run development server
 npm start
