@@ -9,7 +9,7 @@ const suitSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["Wedding", "Business", "Casual", "Traditional", "Formal"],
+      enum: ["Wedding", "Business", "Casual", "Traditional", "Formal", "Tuxedo"],
       required: [true, "Category is required"],
     },
     size: {
@@ -34,7 +34,6 @@ const suitSchema = new mongoose.Schema(
     },
     condition: {
       type: String,
-      enum: ["new", "excellent", "good", "fair", "poor"],
       default: "good",
     },
     description: {
@@ -50,5 +49,24 @@ const suitSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+suitSchema.virtual("rentalPrice").get(function () {
+  return this.dailyRate;
+}).set(function (v) {
+  this.dailyRate = v;
+});
+
+suitSchema.virtual("price").get(function () {
+  return this.dailyRate;
+});
+
+suitSchema.virtual("availability").get(function () {
+  return this.status === "available";
+}).set(function (v) {
+  this.status = v ? "available" : "rented";
+});
+
+suitSchema.set("toJSON", { virtuals: true });
+suitSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Suit", suitSchema);

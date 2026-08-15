@@ -21,6 +21,11 @@ const customerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    idType: {
+      type: String,
+      enum: ["nationalId", "passport"],
+      required: [true, "ID type is required"],
+    },
     totalRentals: {
       type: Number,
       default: 0,
@@ -35,5 +40,27 @@ const customerSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+customerSchema.virtual("fullName").get(function () {
+  return this.name;
+}).set(function (v) {
+  this.name = v;
+});
+
+customerSchema.virtual("nationalId").get(function () {
+  return this.idType === "nationalId";
+});
+
+customerSchema.virtual("passport").get(function () {
+  return this.idType === "passport";
+});
+
+customerSchema.virtual("displayId").get(function () {
+  if (!this.idType) return "";
+  return this.idType === "passport" ? "Passport" : "National ID";
+});
+
+customerSchema.set("toJSON", { virtuals: true });
+customerSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Customer", customerSchema);

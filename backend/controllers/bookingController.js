@@ -32,39 +32,38 @@ const createBooking = async (req, res) => {
   try {
     const {
       customer,
+      customerName,
+      phone,
       suit,
-      eventDate,
+      size,
       eventType,
       pickupDate,
-      returnDate,
-      totalAmount,
       deposit,
       status,
       notes,
     } = req.body;
 
-    if (
-      !customer ||
-      !suit ||
-      !eventDate ||
-      !eventType ||
-      !pickupDate ||
-      !returnDate ||
-      totalAmount === undefined
-    ) {
-      return res.status(400).json({ message: "All required booking fields must be provided" });
+    const eventDate = req.body.eventDate || req.body.bookingDate || new Date();
+    const returnDate = req.body.returnDate || new Date(new Date(eventDate).getTime() + 86400000 * 3);
+    const totalAmount = req.body.totalAmount !== undefined ? req.body.totalAmount : (req.body.price !== undefined ? req.body.price : 0);
+
+    if (!suit) {
+      return res.status(400).json({ message: "Suit is required for booking" });
     }
 
     const booking = await Booking.create({
-      customer,
+      customer: customer || undefined,
+      customerName,
+      phone,
       suit,
+      size: size || "M",
       eventDate,
-      eventType,
-      pickupDate,
+      eventType: eventType || "Other",
+      pickupDate: pickupDate || eventDate,
       returnDate,
-      totalAmount,
+      totalAmount: Number(totalAmount),
       deposit: deposit || 0,
-      status: status || "pending",
+      status: status || "Reserved",
       notes,
     });
 
