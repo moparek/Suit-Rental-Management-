@@ -1,7 +1,6 @@
 /* ==========================================================
    LAYOUT.CSS
-   Sidebar, top navbar, footer, page wrapper.
-   Owner: the dev building Sidebar.jsx / Navbar.jsx / Footer.jsx / Layout.jsx
+   Sidebar (fixed + collapsible), top navbar, footer, page wrapper.
    ========================================================== */
 
 .app-layout {
@@ -9,27 +8,96 @@
   min-height: 100vh;
 }
 
+/* ---------- Sidebar (FIXED — scroll-ka lama socdo) ---------- */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
   width: var(--sidebar-width);
   background-color: var(--sidebar-bg);
   color: #fff;
-  flex-shrink: 0;
-  min-height: 100vh;
-  position: sticky;
-  top: 0;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  transition: width 0.25s ease, transform 0.25s ease;
 }
 
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* ---------- Main content — meel banaan sidebar-ka ---------- */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.25s ease;
+}
+
+.app-layout.is-collapsed .main-content {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* ---------- Brand ---------- */
 .sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-size: 1.2rem;
   font-weight: 700;
-  padding: 1.5rem 1.25rem;
+  padding: 1.25rem 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+  min-height: 64px;
+  flex-shrink: 0;
 }
 
+.brand-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+  padding: 1.25rem 0;
+}
+
+.sidebar-close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.sidebar-close:hover {
+  color: #fff;
+}
+
+/* ---------- Nav links (gudaha ayay scroll gareeyaan) ---------- */
 .sidebar-nav {
   list-style: none;
   padding: 1rem 0;
   margin: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
 }
 
 .sidebar-link {
@@ -39,7 +107,17 @@
   padding: 0.75rem 1.25rem;
   color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
-  transition: all 0.2s ease;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  min-width: 22px;
+  flex-shrink: 0;
 }
 
 .sidebar-link:hover {
@@ -54,13 +132,59 @@
   margin-right: 0.75rem;
 }
 
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+/* Xaaladda collapsed: kaliya icon-ka */
+.sidebar.collapsed .sidebar-label,
+.sidebar.collapsed .brand-text {
+  display: none;
 }
 
+.sidebar.collapsed .sidebar-link {
+  justify-content: center;
+  padding: 0.8rem 0;
+}
+
+.sidebar.collapsed .sidebar-link.active {
+  border-radius: 0;
+  margin-right: 0;
+  border-left: 3px solid #fff;
+}
+
+/* ---------- Collapse button ---------- */
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar.collapsed .sidebar-toggle-btn {
+  justify-content: center;
+  padding: 0.85rem 0;
+}
+
+/* ---------- Backdrop (mobile) ---------- */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1035;
+}
+
+/* ---------- Topbar ---------- */
 .topbar {
   background-color: #fff;
   height: 64px;
@@ -68,6 +192,30 @@
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.topbar-title {
+  font-size: 1.05rem;
+}
+
+.menu-toggle {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu-toggle:hover {
+  background-color: var(--sidebar-active);
+  border-color: var(--sidebar-active);
+  color: #fff;
 }
 
 .page-content {
@@ -81,12 +229,51 @@
   font-size: 0.85rem;
 }
 
-@media (max-width: 768px) {
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
   .sidebar {
-    width: 70px;
+    width: var(--sidebar-width) !important;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.25);
   }
-  .sidebar-link span,
-  .sidebar-brand {
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Mobile-ka: main content-ku ma leh margin */
+  .main-content,
+  .app-layout.is-collapsed .main-content {
+    margin-left: 0;
+  }
+
+  /* Mobile-ka: had iyo jeer magacyada muuji */
+  .sidebar.collapsed .sidebar-label,
+  .sidebar.collapsed .brand-text {
+    display: inline;
+  }
+
+  .sidebar.collapsed .sidebar-link {
+    justify-content: flex-start;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .sidebar.collapsed .sidebar-brand {
+    justify-content: flex-start;
+    padding: 1.25rem;
+  }
+
+  .page-content {
+    padding: 1rem;
+  }
+
+  .topbar-title {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .topbar-title {
     display: none;
   }
 }

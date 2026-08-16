@@ -1,5 +1,6 @@
 :root {
   --sidebar-width: 240px;
+  --sidebar-collapsed-width: 78px;
   --sidebar-bg: #1e1e2d;
   --sidebar-active: #4361ee;
   --content-bg: #f4f6f9;

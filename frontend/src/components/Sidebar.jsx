@@ -9,6 +9,9 @@ import {
   FaUserCircle,
   FaChartBar,
   FaPhoneAlt,
+  FaAngleLeft,
+  FaAngleRight,
+  FaTimes,
 } from "react-icons/fa";
 
 const links = [
@@ -22,25 +25,59 @@ const links = [
   { to: "/profile", label: "Profile", icon: <FaUserCircle /> },
 ];
 
-function Sidebar() {
+function Sidebar({ collapsed = false, mobileOpen = false, onClose, onToggle }) {
   return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">👔 Suit Rental</div>
+    <aside
+      className={
+        "sidebar" +
+        (collapsed ? " collapsed" : "") +
+        (mobileOpen ? " mobile-open" : "")
+      }
+    >
+      <div className="sidebar-brand">
+        <span className="brand-icon">👔</span>
+        <span className="brand-text">Suit Rental</span>
+
+        {/* Batoonka xirista ee mobile-ka */}
+        <button
+          type="button"
+          className="sidebar-close d-lg-none"
+          onClick={onClose}
+          aria-label="Close sidebar"
+        >
+          <FaTimes />
+        </button>
+      </div>
+
       <ul className="sidebar-nav">
         {links.map((link) => (
           <li key={link.to}>
             <NavLink
               to={link.to}
+              title={link.label}
+              onClick={onClose}
               className={({ isActive }) =>
                 "sidebar-link" + (isActive ? " active" : "")
               }
             >
-              {link.icon}
-              <span>{link.label}</span>
+              <span className="sidebar-icon">{link.icon}</span>
+              <span className="sidebar-label">{link.label}</span>
             </NavLink>
           </li>
         ))}
       </ul>
+
+      {/* Batoonka collapse/expand ee desktop-ka */}
+      <button
+        type="button"
+        className="sidebar-toggle-btn d-none d-lg-flex"
+        onClick={onToggle}
+        aria-label="Toggle sidebar"
+        title={collapsed ? "Expand menu" : "Collapse menu"}
+      >
+        {collapsed ? <FaAngleRight /> : <FaAngleLeft />}
+        <span className="sidebar-label">Collapse</span>
+      </button>
     </aside>
   );
 }
