@@ -45,8 +45,8 @@ const rentalSchema = new mongoose.Schema(
     },
     rentalStatus: {
       type: String,
-      enum: ["reserved", "active", "returned", "overdue", "cancelled"],
-      default: "reserved",
+      enum: ["pending", "accepted", "rejected", "active", "returned", "overdue", "cancelled"],
+      default: "pending",
     },
     notes: {
       type: String,
@@ -71,6 +71,9 @@ rentalSchema.virtual("rentalDate").get(function () {
 });
 
 rentalSchema.virtual("status").get(function () {
+  if (this.rentalStatus === "active" && this.endDate && new Date() > new Date(this.endDate)) {
+    return "overdue";
+  }
   return this.rentalStatus;
 }).set(function (v) {
   this.rentalStatus = v;

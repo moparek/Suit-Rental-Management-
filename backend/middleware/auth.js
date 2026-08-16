@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../Models/userModel");
 
 const protect = (req, res, next) => {
   try {
@@ -21,4 +22,21 @@ const protect = (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const adminOrStaff = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("role");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!["admin", "staff", "manager"].includes(user.role)) {
+      return res.status(403).json({ message: "Access denied. Admin or staff only." });
+    }
+    req.user.role = user.role;
+    next();
+  } catch (error) {
+    return res.status(500).json({ message: "Server error checking permissions" });
+  }
+};
+
+module.exports = { protect, adminOrStaff };
+

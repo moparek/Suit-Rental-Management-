@@ -29,7 +29,7 @@ const suitSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["available", "rented", "maintenance", "retired"],
+      enum: ["available", "reserved", "rented", "maintenance", "retired"],
       default: "available",
     },
     condition: {

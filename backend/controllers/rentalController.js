@@ -260,11 +260,11 @@ const createCustomerBooking = async (req, res) => {
       deposit: 0,
       balance: totalAmount,
       paymentStatus: "pending",
-      rentalStatus: "reserved",
+      rentalStatus: "pending",
       notes,
     });
 
-    suitItem.status = "rented";
+    suitItem.status = "reserved";
     await suitItem.save();
 
     await Customer.findByIdAndUpdate(customer._id, { $inc: { totalRentals: 1 } });
@@ -302,4 +302,72 @@ const getMyBookings = async (req, res) => {
   }
 };
 
-module.exports = {getRentals,getRental,createRental,updateRental,deleteRental,createCustomerBooking,getMyBookings};
+const acceptBooking = async (req, res) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ message: "Rental not found" });
+    if (rental.rentalStatus !== "pending") return res.status(400).json({ message: "Can only accept pending bookings" });
+
+    rental.rentalStatus = "accepted";
+    await rental.save();
+    res.json(rental);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const rejectBooking = async (req, res) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ message: "Rental not found" });
+    if (rental.rentalStatus !== "pending") return res.status(400).json({ message: "Can only reject pending bookings" });
+
+    rental.rentalStatus = "rejected";
+    await rental.save();
+
+    await Suit.findByIdAndUpdate(rental.suit, { status: "available" });
+
+    res.json(rental);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const startRental = async (req, res) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ message: "Rental not found" });
+    if (rental.rentalStatus !== "accepted") return res.status(400).json({ message: "Can only start accepted bookings" });
+
+    rental.rentalStatus = "active";
+    await rental.save();
+
+    await Suit.findByIdAndUpdate(rental.suit, { status: "rented" });
+
+    res.json(rental);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const returnRental = async (req, res) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ message: "Rental not found" });
+    
+    // Virtual status might be overdue, but rentalStatus in DB is active
+    if (rental.rentalStatus !== "active") return res.status(400).json({ message: "Can only return active or overdue rentals" });
+
+    rental.rentalStatus = "returned";
+    rental.returnDate = new Date();
+    await rental.save();
+
+    await Suit.findByIdAndUpdate(rental.suit, { status: "available" });
+
+    res.json(rental);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {getRentals,getRental,createRental,updateRental,deleteRental,createCustomerBooking,getMyBookings,acceptBooking,rejectBooking,startRental,returnRental};
