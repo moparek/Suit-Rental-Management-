@@ -40,7 +40,7 @@ const loginUser = async (req, res) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, address, password } = req.body;
 
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ message: "Please enter all required fields" });
@@ -55,8 +55,9 @@ const registerUser = async (req, res) => {
       name,
       email,
       phone,
+      address,
       password,
-      role: "staff",
+      role: "customer",
       status: "active",
     });
 
@@ -68,6 +69,7 @@ const registerUser = async (req, res) => {
           name: user.name,
           email: user.email,
           phone: user.phone,
+          address: user.address,
           role: user.role,
           status: user.status,
           createdAt: user.createdAt,

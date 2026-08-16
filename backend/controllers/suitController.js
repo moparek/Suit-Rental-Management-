@@ -9,6 +9,16 @@ const getSuits = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+const getAvailableSuits = async (req, res) => {
+  try {
+    const suits = await Suit.find({ status: "available" }).sort({ createdAt: -1 });
+    res.json(suits);
+  } catch (error) {
+    console.error("Get available suits error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 const getSuit = async (req, res) => {
   try {
     const suit = await Suit.findById(req.params.id);
@@ -92,4 +102,4 @@ const deleteSuit = async (req, res) => {
   }
 };
 
-module.exports = {getSuits, getSuit,createSuit,updateSuit, deleteSuit};
+module.exports = {getSuits, getAvailableSuits, getSuit,createSuit,updateSuit, deleteSuit};

@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Phone is required"],
     },
+    address: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -26,8 +30,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "staff", "manager"],
-      default: "staff",
+      enum: ["admin", "staff", "manager", "customer"],
+      default: "customer",
     },
     status: {
       type: String,

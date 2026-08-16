@@ -217,4 +217,89 @@ const deleteRental = async (req, res) => {
   }
 };
 
-module.exports = {getRentals,getRental,createRental,updateRental,deleteRental};
+const createCustomerBooking = async (req, res) => {
+  try {
+    const { suit, startDate, endDate, notes } = req.body;
+    
+    const User = require("../Models/userModel");
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    let customer = await Customer.findOne({ email: user.email });
+    if (!customer) {
+      customer = await Customer.create({
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        idType: "nationalId",
+      });
+    }
+
+    if (!suit || !startDate || !endDate) {
+      return res.status(400).json({ message: "Suit, start date, and end date are required" });
+    }
+
+    const suitItem = await Suit.findById(suit);
+    if (!suitItem) {
+      return res.status(404).json({ message: "Suit not found" });
+    }
+
+    if (suitItem.status !== "available") {
+      return res.status(409).json({ message: "Suit is no longer available" });
+    }
+
+    const rentalDays = calculateRentalDays(startDate, endDate);
+    const totalAmount = rentalDays * suitItem.dailyRate;
+
+    const rental = await Rental.create({
+      customer: customer._id,
+      suit,
+      startDate,
+      endDate,
+      totalAmount,
+      deposit: 0,
+      balance: totalAmount,
+      paymentStatus: "pending",
+      rentalStatus: "reserved",
+      notes,
+    });
+
+    suitItem.status = "rented";
+    await suitItem.save();
+
+    await Customer.findByIdAndUpdate(customer._id, { $inc: { totalRentals: 1 } });
+
+    const populatedRental = await Rental.findById(rental._id)
+      .populate("customer", "name phone email idType")
+      .populate("suit", "name category size color dailyRate");
+
+    res.status(201).json(populatedRental);
+  } catch (error) {
+    console.error("Create customer booking error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getMyBookings = async (req, res) => {
+  try {
+    const User = require("../Models/userModel");
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const customer = await Customer.findOne({ email: user.email });
+    if (!customer) {
+      return res.json([]);
+    }
+
+    const rentals = await Rental.find({ customer: customer._id })
+      .populate("suit", "name category size color dailyRate image")
+      .sort({ createdAt: -1 });
+      
+    res.json(rentals);
+  } catch (error) {
+    console.error("Get my bookings error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {getRentals,getRental,createRental,updateRental,deleteRental,createCustomerBooking,getMyBookings};
