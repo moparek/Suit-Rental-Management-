@@ -3,11 +3,36 @@ import { staffAPI } from "../services/api";
 import Loader from "../components/Loader";
 import Alert from "../components/Alert";
 import Modal from "../components/Modal";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaLock } from "react-icons/fa";
 
-const initialForm = { name: "", email: "", phone: "", role: "Staff" };
+const initialForm = {
+  name: "",
+  email: "",
+  phone: "",
+  password: "",
+  role: "staff",
+  status: "active",
+};
+
+const ROLE_LABELS = {
+  admin: "Admin",
+  staff: "Staff",
+};
+
+const roleBadgeColor = (role) => (role === "admin" ? "dark" : "info");
+
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  } catch {
+    return null;
+  }
+}
 
 function StaffList() {
+  const currentUser = getCurrentUser();
+  const isAdmin = currentUser?.role === "admin";
+
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,10 +70,12 @@ function StaffList() {
 
   const openEditForm = (member) => {
     setForm({
-      name: member.name,
-      email: member.email,
-      phone: member.phone,
-      role: member.role,
+      name: member.name || "",
+      email: member.email || "",
+      phone: member.phone || "",
+      password: "",
+      role: (member.role || "staff").toLowerCase(),
+      status: member.status || "active",
     });
     setEditId(member._id);
     setFormErrors({});
@@ -64,6 +91,9 @@ function StaffList() {
     if (!form.phone) errs.phone = "Phone is required";
     else if (!/^\d{7,15}$/.test(form.phone))
       errs.phone = "Invalid phone number";
+    if (!editId && !form.password) errs.password = "Password is required";
+    else if (form.password && form.password.length < 6)
+      errs.password = "Password must be at least 6 characters";
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -71,12 +101,23 @@ function StaffList() {
   const handleSave = async () => {
     if (!validate()) return;
     setSaving(true);
+    setError("");
+
+    const payload = {
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      role: form.role,
+      status: form.status,
+    };
+    if (form.password) payload.password = form.password;
+
     try {
       if (editId) {
-        await staffAPI.update(editId, form);
+        await staffAPI.update(editId, payload);
         setSuccess("Staff member updated successfully");
       } else {
-        await staffAPI.create(form);
+        await staffAPI.create(payload);
         setSuccess("Staff member added successfully");
       }
       setShowForm(false);
@@ -104,13 +145,22 @@ function StaffList() {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h3 className="fw-bold mb-0">Staff</h3>
-        <button
-          className="btn btn-primary d-flex align-items-center gap-2"
-          onClick={openAddForm}
-        >
-          <FaPlus /> Add Staff
-        </button>
+        {isAdmin && (
+          <button
+            className="btn btn-primary d-flex align-items-center gap-2"
+            onClick={openAddForm}
+          >
+            <FaPlus /> Add Staff
+          </button>
+        )}
       </div>
+
+      {!isAdmin && (
+        <div className="alert alert-secondary d-flex align-items-center gap-2">
+          <FaLock />
+          You have view-only access. Only administrators can add or remove staff.
+        </div>
+      )}
 
       {error && (
         <Alert type="danger" message={error} onClose={() => setError("")} />
@@ -139,7 +189,8 @@ function StaffList() {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Role</th>
-                  <th className="text-end">Actions</th>
+                  <th>Status</th>
+                  {isAdmin && <th className="text-end">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -149,26 +200,39 @@ function StaffList() {
                     <td>{m.email}</td>
                     <td>{m.phone}</td>
                     <td>
-                      <span
-                        className={`badge bg-${m.role === "Admin" ? "dark" : "info"}`}
-                      >
-                        {m.role}
+                      <span className={`badge bg-${roleBadgeColor(m.role)}`}>
+                        {ROLE_LABELS[m.role] || m.role}
                       </span>
                     </td>
-                    <td className="text-end">
-                      <button
-                        className="btn btn-sm btn-outline-primary me-1"
-                        onClick={() => openEditForm(m)}
+                    <td>
+                      <span
+                        className={`badge bg-${m.status === "active" ? "success" : "secondary"}`}
                       >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => setDeleteId(m._id)}
-                      >
-                        <FaTrash />
-                      </button>
+                        {m.status}
+                      </span>
                     </td>
+                    {isAdmin && (
+                      <td className="text-end">
+                        <button
+                          className="btn btn-sm btn-outline-primary me-1"
+                          onClick={() => openEditForm(m)}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => setDeleteId(m._id)}
+                          disabled={m._id === currentUser?._id}
+                          title={
+                            m._id === currentUser?._id
+                              ? "You cannot remove your own account"
+                              : "Remove"
+                          }
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -218,15 +282,41 @@ function StaffList() {
             <div className="invalid-feedback">{formErrors.phone}</div>
           )}
         </div>
-        <div className="mb-2">
+        <div className="mb-3">
+          <label className="form-label">
+            Password {editId && <span className="text-muted">(optional)</span>}
+          </label>
+          <input
+            type="password"
+            className={`form-control ${formErrors.password ? "is-invalid" : ""}`}
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder={editId ? "Leave blank to keep current password" : ""}
+          />
+          {formErrors.password && (
+            <div className="invalid-feedback">{formErrors.password}</div>
+          )}
+        </div>
+        <div className="mb-3">
           <label className="form-label">Role</label>
           <select
             className="form-select"
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
           >
-            <option value="Admin">Admin</option>
-            <option value="Staff">Staff</option>
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div className="mb-2">
+          <label className="form-label">Status</label>
+          <select
+            className="form-select"
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
       </Modal>

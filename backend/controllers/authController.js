@@ -1,11 +1,14 @@
 const User = require("../Models/userModel");
 const jwt = require("jsonwebtoken");
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || "default_secret", {
-    expiresIn: "30d",
-  });
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET || "default_secret",
+    { expiresIn: "30d" }
+  );
 };
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -17,8 +20,14 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
+      if (user.status === "inactive") {
+        return res
+          .status(403)
+          .json({ message: "This account has been deactivated." });
+      }
+
       res.json({
-        token: generateToken(user._id),
+        token: generateToken(user),
         user: {
           _id: user._id,
           name: user.name,
@@ -51,18 +60,22 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists with this email" });
     }
 
+    // The very first account becomes the administrator.
+    const userCount = await User.countDocuments();
+    const role = userCount === 0 ? "admin" : "staff";
+
     const user = await User.create({
       name,
       email,
       phone,
       password,
-      role: "staff",
+      role,
       status: "active",
     });
 
     if (user) {
       res.status(201).json({
-        token: generateToken(user._id),
+        token: generateToken(user),
         user: {
           _id: user._id,
           name: user.name,
@@ -81,6 +94,7 @@ const registerUser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -94,6 +108,7 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const updateUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -116,7 +131,7 @@ const updateUserProfile = async (req, res) => {
         phone: updatedUser.phone,
         role: updatedUser.role,
         status: updatedUser.status,
-        token: generateToken(updatedUser._id),
+        token: generateToken(updatedUser),
       });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -127,4 +142,4 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = {loginUser,registerUser,getUserProfile,updateUserProfile};
+module.exports = { loginUser, registerUser, getUserProfile, updateUserProfile };

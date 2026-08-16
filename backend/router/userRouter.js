@@ -6,18 +6,18 @@ const {
   updateUserStatus,
   deleteUser,
 } = require("../controllers/userController");
-const { protect } = require("../middleware/auth");
+const { protect, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
 router.route("/")
   .get(protect, getAllUsers)
-  .post(protect, createUser);
+  .post(protect, authorize("admin"), createUser);
 
 router.route("/:id")
-  .put(protect, updateUser)
-  .delete(protect, deleteUser);
+  .put(protect, authorize("admin"), updateUser)
+  .delete(protect, authorize("admin"), deleteUser);
 
-router.patch("/:id/status", protect, updateUserStatus);
+router.patch("/:id/status", protect, authorize("admin"), updateUserStatus);
 
 module.exports = router;
