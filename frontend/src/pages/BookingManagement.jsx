@@ -233,16 +233,7 @@ function BookingManagement() {
                               <FaPlay /> Start Rental
                             </button>
                           )}
-                          {(st === "active" || st === "overdue") && (
-                            <button
-                              className="btn btn-sm btn-outline-success d-flex align-items-center gap-1"
-                              onClick={() => setActionModal({ id: r._id, action: "return" })}
-                              title="Return Suit"
-                            >
-                              <FaUndoAlt /> Return
-                            </button>
-                          )}
-                          {(st === "returned" || st === "rejected" || st === "cancelled") && (
+                          {(st === "active" || st === "overdue" || st === "returned" || st === "rejected" || st === "cancelled") && (
                             <span className="text-muted small">—</span>
                           )}
                         </div>

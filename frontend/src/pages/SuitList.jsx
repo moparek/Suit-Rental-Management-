@@ -78,6 +78,9 @@ function SuitList() {
   };
 
   const filtered = suits.filter((s) => {
+    // Hide rented suits from the list
+    if (s.status === "rented") return false;
+
     return (
       s.name?.toLowerCase().includes(search.toLowerCase()) &&
       (category ? s.category === category : true) &&

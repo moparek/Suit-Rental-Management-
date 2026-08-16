@@ -13,11 +13,10 @@ import {
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },
-  { to: "/booking-management", label: "Booking Mgmt", icon: <FaClipboardList /> },
   { to: "/suits", label: "Suits", icon: <FaTshirt /> },
   { to: "/customers", label: "Customers", icon: <FaUsers /> },
-  { to: "/bookings", label: "Bookings", icon: <FaPhoneAlt /> },
-  { to: "/rentals", label: "Rentals", icon: <FaClipboardList /> },
+  { to: "/booking-management", label: "Bookings", icon: <FaClipboardList /> },
+  { to: "/rentals", label: "Rentals", icon: <FaPhoneAlt /> },
   { to: "/staff", label: "Staff", icon: <FaUserTie /> },
   { to: "/reports", label: "Reports", icon: <FaChartBar /> },
   { to: "/profile", label: "Profile", icon: <FaUserCircle /> },

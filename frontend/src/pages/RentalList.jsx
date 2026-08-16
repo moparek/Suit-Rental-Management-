@@ -6,7 +6,7 @@ import Alert from "../components/Alert";
 import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";
 import Modal from "../components/Modal";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaUndoAlt } from "react-icons/fa";
 
 const PAGE_SIZE = 8;
 
@@ -45,6 +45,7 @@ function RentalList() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState(null);
+  const [returnId, setReturnId] = useState(null);
 
   const fetchRentals = async () => {
     setLoading(true);
@@ -85,6 +86,18 @@ function RentalList() {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete rental");
       setDeleteId(null);
+    }
+  };
+
+  const handleReturn = async () => {
+    try {
+      await rentalAPI.returnRental(returnId);
+      setSuccess("Suit returned successfully.");
+      setReturnId(null);
+      fetchRentals();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to return rental");
+      setReturnId(null);
     }
   };
 
@@ -171,11 +184,11 @@ function RentalList() {
                         : "-"}
                     </td>
                     <td>
-                      <span
-                        className={`badge bg-${r.status === "Returned" ? "success" : "warning"}`}
-                      >
-                        {r.status}
-                      </span>
+                      {(() => {
+                        const st = (r.status || r.rentalStatus || "").toLowerCase();
+                        const colors = { pending: "warning", accepted: "info", rejected: "danger", active: "primary", returned: "success", overdue: "dark", cancelled: "secondary" };
+                        return <span className={`badge bg-${colors[st] || "secondary"}`}>{st.charAt(0).toUpperCase() + st.slice(1)}</span>;
+                      })()}
                     </td>
                     <td>
                       <span
@@ -185,6 +198,18 @@ function RentalList() {
                       </span>
                     </td>
                     <td className="text-end">
+                      {(() => {
+                        const st = (r.status || r.rentalStatus || "").toLowerCase();
+                        return (st === "active" || st === "overdue") ? (
+                          <button
+                            className="btn btn-sm btn-outline-success me-1 d-inline-flex align-items-center gap-1"
+                            onClick={() => setReturnId(r._id)}
+                            title="Return Suit"
+                          >
+                            <FaUndoAlt /> Return
+                          </button>
+                        ) : null;
+                      })()}
                       <Link
                         to={`/rentals/edit/${r._id}`}
                         className="btn btn-sm btn-outline-primary me-1"
@@ -221,6 +246,16 @@ function RentalList() {
       >
         Are you sure you want to delete this rental record? This action cannot
         be undone.
+      </Modal>
+
+      <Modal
+        show={!!returnId}
+        title="Return Suit"
+        onClose={() => setReturnId(null)}
+        onConfirm={handleReturn}
+        confirmText="Return"
+      >
+        Are you sure you want to mark this suit as returned? The suit will become available again.
       </Modal>
     </div>
   );
