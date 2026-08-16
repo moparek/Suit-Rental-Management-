@@ -39,6 +39,7 @@ export const authAPI = {
 // ---------- Suits ----------
 export const suitAPI = {
   getAll: (params) => api.get("/suits", { params }),
+  getAvailable: () => api.get("/suits/available"),
   getOne: (id) => api.get(`/suits/${id}`),
   create: (data) => api.post("/suits", data),
   update: (id, data) => api.put(`/suits/${id}`, data),
@@ -54,11 +55,12 @@ export const customerAPI = {
   delete: (id) => api.delete(`/customers/${id}`),
 };
 
-// ---------- Rentals ----------
 export const rentalAPI = {
   getAll: (params) => api.get("/rentals", { params }),
+  getMyBookings: () => api.get("/rentals/my-bookings"),
   getOne: (id) => api.get(`/rentals/${id}`),
   create: (data) => api.post("/rentals", data),
+  createBooking: (data) => api.post("/rentals/book", data),
   update: (id, data) => api.put(`/rentals/${id}`, data),
   delete: (id) => api.delete(`/rentals/${id}`),
 };

@@ -17,11 +17,27 @@ import Register from "./pages/Register";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
+import PublicBooking from "./pages/PublicBooking";
+import BookingSuccess from "./pages/BookingSuccess";
+import CustomerLayout from "./pages/customer/CustomerLayout";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import CustomerBookings from "./pages/customer/CustomerBookings";
+import CustomerProfile from "./pages/customer/CustomerProfile";
+
 // Wraps protected pages with the sidebar/navbar/footer layout
 function PrivatePage({ children }) {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["admin", "staff", "manager"]}>
       <Layout>{children}</Layout>
+    </ProtectedRoute>
+  );
+}
+
+function CustomerPage({ children }) {
+  return (
+    <ProtectedRoute allowedRoles={["customer"]}>
+      <CustomerLayout>{children}</CustomerLayout>
     </ProtectedRoute>
   );
 }
@@ -29,8 +45,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/suit/:id" element={<PublicBooking />} />
+        <Route path="/booking-success" element={<BookingSuccess />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* Customer Routes */}
+        <Route path="/customer-dashboard" element={<CustomerPage><CustomerDashboard /></CustomerPage>} />
+        <Route path="/customer-bookings" element={<CustomerPage><CustomerBookings /></CustomerPage>} />
+        <Route path="/customer-profile" element={<CustomerPage><CustomerProfile /></CustomerPage>} />
+
         <Route
           path="/bookings"
           element={
@@ -56,7 +81,7 @@ function App() {
           }
         />
 
-        <Route path="/register" element={<Register />} />
+
         <Route
           path="/dashboard"
           element={

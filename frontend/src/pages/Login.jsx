@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { authAPI } from "../services/api";
 import Alert from "../components/Alert";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const redirect = searchParams.get("redirect");
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -30,7 +33,15 @@ function Login() {
       const res = await authAPI.login(form);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      
+      if (redirect === "booking" && sessionStorage.getItem("pendingBooking")) {
+        const pending = JSON.parse(sessionStorage.getItem("pendingBooking"));
+        navigate(`/suit/${pending.suitId}`);
+      } else if (res.data.user.role === "customer") {
+        navigate("/customer-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setServerError(
         err.response?.data?.message || "Login failed. Please check your credentials."
@@ -85,9 +96,9 @@ function Login() {
           </button>
         </form>
 
-        {/* <p className="text-center mt-3 mb-0">
-          Don't have an account? <Link to="/register">Register</Link>
-        </p> */}
+        <p className="text-center mt-3 mb-0">
+          Don't have an account? <Link to={redirect ? `/register?redirect=${redirect}` : "/register"}>Register</Link>
+        </p>
       </div>
     </div>
   );

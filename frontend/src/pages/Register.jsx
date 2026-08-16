@@ -1,14 +1,18 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { authAPI } from "../services/api";
 import Alert from "../components/Alert";
 
 function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const redirect = searchParams.get("redirect");
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
+    address: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
@@ -24,6 +28,7 @@ function Register() {
     if (!form.phone) errs.phone = "Phone is required";
     else if (!/^\d{7,15}$/.test(form.phone))
       errs.phone = "Invalid phone number";
+    if (!form.address) errs.address = "Address is required";
     if (!form.password) errs.password = "Password is required";
     else if (form.password.length < 6)
       errs.password = "Password must be at least 6 characters";
@@ -38,8 +43,18 @@ function Register() {
 
     setLoading(true);
     try {
-      await authAPI.register(form);
-      navigate("/login");
+      const res = await authAPI.register(form);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      
+      if (redirect === "booking" && sessionStorage.getItem("pendingBooking")) {
+        const pending = JSON.parse(sessionStorage.getItem("pendingBooking"));
+        navigate(`/suit/${pending.suitId}`);
+      } else if (res.data.user.role === "customer") {
+        navigate("/customer-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setServerError(
         err.response?.data?.message || "Registration failed. Please try again.",
@@ -96,6 +111,17 @@ function Register() {
             )}
           </div>
           <div className="mb-3">
+            <label className="form-label">Address</label>
+            <input
+              className={`form-control ${errors.address ? "is-invalid" : ""}`}
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
+            {errors.address && (
+              <div className="invalid-feedback">{errors.address}</div>
+            )}
+          </div>
+          <div className="mb-3">
             <label className="form-label">Password</label>
             <input
               type="password"
@@ -116,7 +142,7 @@ function Register() {
           </button>
         </form>
         <p className="text-center mt-3 mb-0">
-          Already have an account? <Link to="/login">Login</Link>
+          Already have an account? <Link to={redirect ? `/login?redirect=${redirect}` : "/login"}>Login</Link>
         </p>
       </div>
     </div>
