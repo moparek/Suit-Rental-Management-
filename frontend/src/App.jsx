@@ -12,6 +12,7 @@ import RentalList from "./pages/RentalList";
 import RentalForm from "./pages/RentalForm";
 import BookingList from "./pages/BookingList";
 import BookingForm from "./pages/BookingForm";
+import BookingManagement from "./pages/BookingManagement";
 import StaffList from "./pages/StaffList";
 import Register from "./pages/Register";
 import Reports from "./pages/Reports";
@@ -56,6 +57,14 @@ function App() {
         <Route path="/customer-bookings" element={<CustomerPage><CustomerBookings /></CustomerPage>} />
         <Route path="/customer-profile" element={<CustomerPage><CustomerProfile /></CustomerPage>} />
 
+        <Route
+          path="/booking-management"
+          element={
+            <PrivatePage>
+              <BookingManagement />
+            </PrivatePage>
+          }
+        />
         <Route
           path="/bookings"
           element={

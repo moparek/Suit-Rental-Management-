@@ -22,7 +22,10 @@ function CustomerDashboard() {
     }
   };
 
-  const activeBookings = bookings.filter(b => b.rentalStatus === "active" || b.rentalStatus === "reserved").length;
+  const activeBookings = bookings.filter(b => {
+    const st = (b.status || b.rentalStatus || "").toLowerCase();
+    return st === "pending" || st === "accepted" || st === "active";
+  }).length;
   const totalBookings = bookings.length;
 
   return (
@@ -100,9 +103,12 @@ function CustomerDashboard() {
                       </td>
                       <td>${booking.totalAmount}</td>
                       <td>
-                        <span className={`badge bg-${booking.rentalStatus === 'active' || booking.rentalStatus === 'reserved' ? 'primary' : booking.rentalStatus === 'returned' ? 'success' : booking.rentalStatus === 'overdue' ? 'danger' : 'secondary'}`}>
-                          {booking.rentalStatus}
-                        </span>
+                        {(() => {
+                          const st = (booking.status || booking.rentalStatus || "").toLowerCase();
+                          const colors = { pending: "warning", accepted: "info", rejected: "danger", active: "primary", returned: "success", overdue: "dark", cancelled: "secondary" };
+                          const labels = { pending: "Pending", accepted: "Accepted", rejected: "Rejected", active: "Active", returned: "Returned", overdue: "Overdue", cancelled: "Cancelled" };
+                          return <span className={`badge bg-${colors[st] || "secondary"}`}>{labels[st] || st}</span>;
+                        })()}
                       </td>
                     </tr>
                   ))}

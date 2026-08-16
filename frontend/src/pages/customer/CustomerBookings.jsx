@@ -49,9 +49,32 @@ function CustomerBookings() {
                 <div className="card-body d-flex flex-column">
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <h5 className="card-title fw-bold mb-0">{booking.suit?.name || "Unknown Suit"}</h5>
-                    <span className={`badge bg-${booking.rentalStatus === 'active' || booking.rentalStatus === 'reserved' ? 'primary' : booking.rentalStatus === 'returned' ? 'success' : booking.rentalStatus === 'overdue' ? 'danger' : 'secondary'}`}>
-                      {booking.rentalStatus}
-                    </span>
+                    {(() => {
+                      const st = (booking.status || booking.rentalStatus || "").toLowerCase();
+                      const colors = {
+                        pending: "warning",
+                        accepted: "info",
+                        rejected: "danger",
+                        active: "primary",
+                        returned: "success",
+                        overdue: "dark",
+                        cancelled: "secondary",
+                      };
+                      const labels = {
+                        pending: "Pending",
+                        accepted: "Accepted / Reserved",
+                        rejected: "Rejected",
+                        active: "Active",
+                        returned: "Returned",
+                        overdue: "Overdue",
+                        cancelled: "Cancelled",
+                      };
+                      return (
+                        <span className={`badge bg-${colors[st] || "secondary"}`}>
+                          {labels[st] || st}
+                        </span>
+                      );
+                    })()}
                   </div>
                   <p className="text-muted small mb-3">Booking ID: {booking._id}</p>
                   

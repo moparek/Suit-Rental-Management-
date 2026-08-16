@@ -63,6 +63,10 @@ export const rentalAPI = {
   createBooking: (data) => api.post("/rentals/book", data),
   update: (id, data) => api.put(`/rentals/${id}`, data),
   delete: (id) => api.delete(`/rentals/${id}`),
+  accept: (id) => api.put(`/rentals/${id}/accept`),
+  reject: (id) => api.put(`/rentals/${id}/reject`),
+  startRental: (id) => api.put(`/rentals/${id}/start`),
+  returnRental: (id) => api.put(`/rentals/${id}/return`),
 };
 
 // ---------- Staff / Users ----------

@@ -13,6 +13,7 @@ import {
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },
+  { to: "/booking-management", label: "Booking Mgmt", icon: <FaClipboardList /> },
   { to: "/suits", label: "Suits", icon: <FaTshirt /> },
   { to: "/customers", label: "Customers", icon: <FaUsers /> },
   { to: "/bookings", label: "Bookings", icon: <FaPhoneAlt /> },
