@@ -5,7 +5,13 @@ import Alert from "../components/Alert";
 import Modal from "../components/Modal";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
-const initialForm = { name: "", email: "", phone: "", role: "Staff" };
+const initialForm = {
+  name: "",
+  email: "",
+  phone: "",
+  password: "",
+  role: "staff",
+};
 
 function StaffList() {
   const [staff, setStaff] = useState([]);
@@ -48,6 +54,7 @@ function StaffList() {
       name: member.name,
       email: member.email,
       phone: member.phone,
+      password: "",
       role: member.role,
     });
     setEditId(member._id);
@@ -64,6 +71,9 @@ function StaffList() {
     if (!form.phone) errs.phone = "Phone is required";
     else if (!/^\d{7,15}$/.test(form.phone))
       errs.phone = "Invalid phone number";
+    if (!editId && !form.password) errs.password = "Password is required";
+    else if (form.password && form.password.length < 6)
+      errs.password = "Password must be at least 6 characters";
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -150,7 +160,7 @@ function StaffList() {
                     <td>{m.phone}</td>
                     <td>
                       <span
-                        className={`badge bg-${m.role === "Admin" ? "dark" : "info"}`}
+                        className={`badge bg-${m.role === "admin" ? "dark" : "info"}`}
                       >
                         {m.role}
                       </span>
@@ -218,6 +228,21 @@ function StaffList() {
             <div className="invalid-feedback">{formErrors.phone}</div>
           )}
         </div>
+        <div className="mb-3">
+          <label className="form-label">
+            Password{editId ? " (leave blank to keep unchanged)" : ""}
+          </label>
+          <input
+            type="password"
+            className={`form-control ${formErrors.password ? "is-invalid" : ""}`}
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder={editId ? "" : "Minimum 6 characters"}
+          />
+          {formErrors.password && (
+            <div className="invalid-feedback">{formErrors.password}</div>
+          )}
+        </div>
         <div className="mb-2">
           <label className="form-label">Role</label>
           <select
@@ -225,8 +250,8 @@ function StaffList() {
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
           >
-            <option value="Admin">Admin</option>
-            <option value="Staff">Staff</option>
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
           </select>
         </div>
       </Modal>
