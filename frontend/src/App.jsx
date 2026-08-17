@@ -35,6 +35,14 @@ function PrivatePage({ children }) {
   );
 }
 
+function AdminOnlyPage({ children }) {
+  return (
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <Layout>{children}</Layout>
+    </ProtectedRoute>
+  );
+}
+
 function CustomerPage({ children }) {
   return (
     <ProtectedRoute allowedRoles={["customer"]}>
@@ -51,11 +59,32 @@ function App() {
         <Route path="/booking-success" element={<BookingSuccess />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
+
         {/* Customer Routes */}
-        <Route path="/customer-dashboard" element={<CustomerPage><CustomerDashboard /></CustomerPage>} />
-        <Route path="/customer-bookings" element={<CustomerPage><CustomerBookings /></CustomerPage>} />
-        <Route path="/customer-profile" element={<CustomerPage><CustomerProfile /></CustomerPage>} />
+        <Route
+          path="/customer-dashboard"
+          element={
+            <CustomerPage>
+              <CustomerDashboard />
+            </CustomerPage>
+          }
+        />
+        <Route
+          path="/customer-bookings"
+          element={
+            <CustomerPage>
+              <CustomerBookings />
+            </CustomerPage>
+          }
+        />
+        <Route
+          path="/customer-profile"
+          element={
+            <CustomerPage>
+              <CustomerProfile />
+            </CustomerPage>
+          }
+        />
 
         <Route
           path="/booking-management"
@@ -89,7 +118,6 @@ function App() {
             </PrivatePage>
           }
         />
-
 
         <Route
           path="/dashboard"
@@ -175,9 +203,9 @@ function App() {
         <Route
           path="/staff"
           element={
-            <PrivatePage>
+            <AdminOnlyPage>
               <StaffList />
-            </PrivatePage>
+            </AdminOnlyPage>
           }
         />
         <Route

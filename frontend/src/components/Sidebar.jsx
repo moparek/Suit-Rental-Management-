@@ -23,11 +23,16 @@ const links = [
 ];
 
 function Sidebar() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const visibleLinks = links.filter(
+    (link) => link.to !== "/staff" || user.role === "admin",
+  );
+
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">👔 Suit Rental</div>
       <ul className="sidebar-nav">
-        {links.map((link) => (
+        {visibleLinks.map((link) => (
           <li key={link.to}>
             <NavLink
               to={link.to}
