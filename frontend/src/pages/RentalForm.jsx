@@ -4,6 +4,8 @@ import { rentalAPI, customerAPI, suitAPI } from "../services/api";
 import Alert from "../components/Alert";
 import Loader from "../components/Loader";
 
+import CustomerSearchSelect from "../components/CustomerSearchSelect";
+
 const initialState = {
   customer: "",
   suit: "",
@@ -108,20 +110,14 @@ function RentalForm() {
           <div className="row">
             <div className="col-md-6 mb-3">
               <label className="form-label">Customer</label>
-              <select
-                className={`form-select ${errors.customer ? "is-invalid" : ""}`}
+              <CustomerSearchSelect
+                customers={customers}
                 value={form.customer}
-                onChange={(e) => setForm({ ...form, customer: e.target.value })}
-              >
-                <option value="">Select customer</option>
-                {customers.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.fullName} ({c.phone})
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setForm({ ...form, customer: val })}
+                isInvalid={Boolean(errors.customer)}
+              />
               {errors.customer && (
-                <div className="invalid-feedback">{errors.customer}</div>
+                <div className="invalid-feedback d-block">{errors.customer}</div>
               )}
             </div>
             <div className="col-md-6 mb-3">

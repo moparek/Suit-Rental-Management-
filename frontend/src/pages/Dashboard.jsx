@@ -31,6 +31,7 @@ function StatCard({ icon, label, value, color }) {
 }
 
 function Dashboard() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [stats, setStats] = useState(null);
   const [recentRentals, setRecentRentals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,12 +105,14 @@ function Dashboard() {
           value={stats?.returnedRentals ?? 0}
           color="#8338ec"
         />
-        <StatCard
-          icon={<FaUserTie />}
-          label="Staff"
-          value={stats?.totalStaff ?? 0}
-          color="#fb5607"
-        />
+        {user.role === "admin" && (
+          <StatCard
+            icon={<FaUserTie />}
+            label="Staff"
+            value={stats?.totalStaff ?? 0}
+            color="#fb5607"
+          />
+        )}
         <StatCard
           icon={<FaDollarSign />}
           label="Total Revenue"
@@ -184,9 +187,11 @@ function Dashboard() {
           <Link to="/rentals/add" className="btn btn-success">
             New Rental
           </Link>
-          <Link to="/staff" className="btn btn-dark">
-            Manage Staff
-          </Link>
+          {user.role === "admin" && (
+            <Link to="/staff" className="btn btn-dark">
+              Manage Staff
+            </Link>
+          )}
         </div>
       </div>
     </div>
