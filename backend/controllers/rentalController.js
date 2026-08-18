@@ -28,6 +28,7 @@ const getRentals = async (req, res) => {
     const rentals = await Rental.find()
       .populate("customer", "name phone email idType")
       .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role")
       .sort({ createdAt: -1 });
     res.json(rentals);
   } catch (error) {
@@ -41,7 +42,8 @@ const getRental = async (req, res) => {
   try {
     const rental = await Rental.findById(req.params.id)
       .populate("customer", "name phone email idType")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     if (!rental) {
       return res.status(404).json({ message: "Rental not found" });
@@ -99,6 +101,7 @@ const createRental = async (req, res) => {
       paymentStatus,
       rentalStatus,
       isOnlineBooking: false,
+      handledBy: req.user ? (req.user._id || req.user.id) : undefined,
       notes,
     });
 
@@ -113,7 +116,8 @@ const createRental = async (req, res) => {
 
     const populatedRental = await Rental.findById(rental._id)
       .populate("customer", "name phone email idType")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     res.status(201).json(populatedRental);
   } catch (error) {
@@ -153,6 +157,7 @@ const updateRental = async (req, res) => {
     if (deposit !== undefined) rental.deposit = deposit;
     if (paymentStatus) rental.paymentStatus = normalizePaymentStatus(paymentStatus);
     if (notes !== undefined) rental.notes = notes;
+    if (req.user) rental.handledBy = req.user._id || req.user.id;
 
     if (totalAmount === undefined && (startDate || endDate || suit)) {
       const suitId = suit || rental.suit;
@@ -189,7 +194,8 @@ const updateRental = async (req, res) => {
 
     const populatedRental = await Rental.findById(updatedRental._id)
       .populate("customer", "name phone email idType")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     res.json(populatedRental);
   } catch (error) {
@@ -273,7 +279,8 @@ const createCustomerBooking = async (req, res) => {
 
     const populatedRental = await Rental.findById(rental._id)
       .populate("customer", "name phone email idType")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     res.status(201).json(populatedRental);
   } catch (error) {
@@ -295,6 +302,7 @@ const getMyBookings = async (req, res) => {
 
     const rentals = await Rental.find({ customer: customer._id })
       .populate("suit", "name category size color dailyRate image")
+      .populate("handledBy", "name email role")
       .sort({ createdAt: -1 });
       
     res.json(rentals);
@@ -311,8 +319,16 @@ const acceptBooking = async (req, res) => {
     if (rental.rentalStatus !== "pending") return res.status(400).json({ message: "Can only accept pending bookings" });
 
     rental.rentalStatus = "accepted";
+    if (req.user) {
+      rental.handledBy = req.user._id || req.user.id;
+    }
     await rental.save();
-    res.json(rental);
+
+    const populated = await Rental.findById(rental._id)
+      .populate("customer", "name phone email idType")
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
+    res.json(populated);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -325,11 +341,18 @@ const rejectBooking = async (req, res) => {
     if (rental.rentalStatus !== "pending") return res.status(400).json({ message: "Can only reject pending bookings" });
 
     rental.rentalStatus = "rejected";
+    if (req.user) {
+      rental.handledBy = req.user._id || req.user.id;
+    }
     await rental.save();
 
     await Suit.findByIdAndUpdate(rental.suit, { status: "available" });
 
-    res.json(rental);
+    const populated = await Rental.findById(rental._id)
+      .populate("customer", "name phone email idType")
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
+    res.json(populated);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -342,11 +365,18 @@ const startRental = async (req, res) => {
     if (rental.rentalStatus !== "accepted") return res.status(400).json({ message: "Can only start accepted bookings" });
 
     rental.rentalStatus = "active";
+    if (req.user) {
+      rental.handledBy = req.user._id || req.user.id;
+    }
     await rental.save();
 
     await Suit.findByIdAndUpdate(rental.suit, { status: "rented" });
 
-    res.json(rental);
+    const populated = await Rental.findById(rental._id)
+      .populate("customer", "name phone email idType")
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
+    res.json(populated);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -362,11 +392,18 @@ const returnRental = async (req, res) => {
 
     rental.rentalStatus = "returned";
     rental.returnDate = new Date();
+    if (req.user) {
+      rental.handledBy = req.user._id || req.user.id;
+    }
     await rental.save();
 
     await Suit.findByIdAndUpdate(rental.suit, { status: "available" });
 
-    res.json(rental);
+    const populated = await Rental.findById(rental._id)
+      .populate("customer", "name phone email idType")
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
+    res.json(populated);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

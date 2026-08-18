@@ -17,8 +17,9 @@ router.route("/")
 
 router.get("/available", getAvailableSuits);
 
+router.get("/:id", getSuit);
+
 router.route("/:id")
-  .get(protect, getSuit)
   .put(protect, updateSuit)
   .delete(protect, deleteSuit);
 

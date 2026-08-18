@@ -5,6 +5,7 @@ const getBookings = async (req, res) => {
     const bookings = await Booking.find()
       .populate("customer", "name phone email")
       .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role")
       .sort({ createdAt: -1 });
     res.json(bookings);
   } catch (error) {
@@ -17,7 +18,8 @@ const getBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
       .populate("customer", "name phone email")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -64,12 +66,14 @@ const createBooking = async (req, res) => {
       totalAmount: Number(totalAmount),
       deposit: deposit || 0,
       status: status || "Reserved",
+      handledBy: req.user ? (req.user._id || req.user.id) : undefined,
       notes,
     });
 
     const populatedBooking = await Booking.findById(booking._id)
       .populate("customer", "name phone email")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     res.status(201).json(populatedBooking);
   } catch (error) {
@@ -108,12 +112,14 @@ const updateBooking = async (req, res) => {
     if (deposit !== undefined) booking.deposit = deposit;
     if (status) booking.status = status;
     if (notes !== undefined) booking.notes = notes;
+    if (req.user) booking.handledBy = req.user._id || req.user.id;
 
     const updatedBooking = await booking.save();
 
     const populatedBooking = await Booking.findById(updatedBooking._id)
       .populate("customer", "name phone email")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     res.json(populatedBooking);
   } catch (error) {
@@ -132,11 +138,13 @@ const updateBookingStatus = async (req, res) => {
     }
 
     booking.status = status;
+    if (req.user) booking.handledBy = req.user._id || req.user.id;
     const updatedBooking = await booking.save();
 
     const populatedBooking = await Booking.findById(updatedBooking._id)
       .populate("customer", "name phone email")
-      .populate("suit", "name category size color dailyRate");
+      .populate("suit", "name category size color dailyRate")
+      .populate("handledBy", "name email role");
 
     res.json(populatedBooking);
   } catch (error) {

@@ -53,6 +53,10 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       default: "Reserved",
     },
+    handledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     notes: {
       type: String,
       trim: true,

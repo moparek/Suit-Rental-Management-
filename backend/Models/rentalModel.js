@@ -52,6 +52,10 @@ const rentalSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    handledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     notes: {
       type: String,
       trim: true,
