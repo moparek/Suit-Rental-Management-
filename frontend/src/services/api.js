@@ -50,6 +50,7 @@ export const suitAPI = {
 export const customerAPI = {
   getAll: (params) => api.get("/customers", { params }),
   getOne: (id) => api.get(`/customers/${id}`),
+  getHistory: (id) => api.get(`/customers/${id}/history`),
   create: (data) => api.post("/customers", data),
   update: (id, data) => api.put(`/customers/${id}`, data),
   delete: (id) => api.delete(`/customers/${id}`),

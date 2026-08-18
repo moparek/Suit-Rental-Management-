@@ -23,7 +23,11 @@ function CustomerList() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState(null);
+
+  // Customer History modal state
   const [historyCustomer, setHistoryCustomer] = useState(null);
+  const [historyDetails, setHistoryDetails] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const fetchCustomers = async () => {
     setLoading(true);
@@ -41,6 +45,26 @@ function CustomerList() {
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  // Fetch complete customer history when history icon button is clicked
+  useEffect(() => {
+    if (!historyCustomer) {
+      setHistoryDetails(null);
+      return;
+    }
+    const fetchHistory = async () => {
+      setHistoryLoading(true);
+      try {
+        const res = await customerAPI.getHistory(historyCustomer._id);
+        setHistoryDetails(res.data);
+      } catch (err) {
+        console.error("Failed to load customer history:", err);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+    fetchHistory();
+  }, [historyCustomer]);
 
   const handleDelete = async () => {
     try {
@@ -128,7 +152,7 @@ function CustomerList() {
                       <button
                         className="btn btn-sm btn-outline-secondary me-1"
                         onClick={() => setHistoryCustomer(c)}
-                        title="View rental history"
+                        title="View full customer information & rental history"
                       >
                         <FaHistory />
                       </button>
@@ -170,21 +194,153 @@ function CustomerList() {
         undone.
       </Modal>
 
+      {/* Full Customer Information & History Modal */}
       <Modal
         show={!!historyCustomer}
-        title={`Rental History - ${historyCustomer?.fullName || ""}`}
+        title={`Customer Details & History — ${historyCustomer?.fullName || historyCustomer?.name || ""}`}
         onClose={() => setHistoryCustomer(null)}
       >
-        {historyCustomer?.rentalHistory?.length ? (
-          <ul className="list-group">
-            {historyCustomer.rentalHistory.map((r, i) => (
-              <li className="list-group-item" key={i}>
-                {r.suitName} — {r.status}
-              </li>
-            ))}
-          </ul>
+        {historyLoading ? (
+          <Loader text="Loading full customer information..." />
         ) : (
-          <p className="text-muted mb-0">No rental history available.</p>
+          <div>
+            {/* Customer Summary */}
+            <div className="bg-light p-3 rounded mb-4 border">
+              <div className="row g-2">
+                <div className="col-sm-6">
+                  <strong>Full Name:</strong> {historyCustomer?.fullName || historyCustomer?.name}
+                </div>
+                <div className="col-sm-6">
+                  <strong>Phone:</strong> {historyCustomer?.phone || "-"}
+                </div>
+                <div className="col-sm-6">
+                  <strong>Email:</strong> {historyCustomer?.email || "-"}
+                </div>
+                <div className="col-sm-6">
+                  <strong>ID Type:</strong> {formatCustomerId(historyCustomer)}
+                </div>
+                <div className="col-12">
+                  <strong>Address:</strong> {historyCustomer?.address || "-"}
+                </div>
+              </div>
+            </div>
+
+            {/* Rentals History */}
+            <h6 className="fw-bold mb-2">Rentals History</h6>
+            {!historyDetails?.rentals || historyDetails.rentals.length === 0 ? (
+              <p className="text-muted small mb-4">No rental records for this customer.</p>
+            ) : (
+              <div className="table-responsive mb-4">
+                <table className="table table-sm table-bordered align-middle small mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Suit</th>
+                      <th>Rental Date</th>
+                      <th>Return Date</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Payment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyDetails.rentals.map((r) => {
+                      const st = (r.status || r.rentalStatus || "").toLowerCase();
+                      const statusColors = {
+                        active: "primary",
+                        returned: "success",
+                        overdue: "dark",
+                        cancelled: "secondary",
+                        accepted: "info",
+                        pending: "warning",
+                      };
+                      return (
+                        <tr key={r._id}>
+                          <td>{r.suit?.name || "-"}</td>
+                          <td>
+                            {r.startDate
+                              ? new Date(r.startDate).toLocaleDateString()
+                              : r.rentalDate
+                                ? new Date(r.rentalDate).toLocaleDateString()
+                                : "-"}
+                          </td>
+                          <td>
+                            {r.endDate
+                              ? new Date(r.endDate).toLocaleDateString()
+                              : r.returnDate
+                                ? new Date(r.returnDate).toLocaleDateString()
+                                : "-"}
+                          </td>
+                          <td className="fw-bold">${r.totalAmount || 0}</td>
+                          <td>
+                            <span className={`badge bg-${statusColors[st] || "secondary"}`}>
+                              {st ? st.charAt(0).toUpperCase() + st.slice(1) : "-"}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              className={`badge bg-${
+                                r.paymentStatus === "paid"
+                                  ? "success"
+                                  : r.paymentStatus === "partial"
+                                    ? "secondary"
+                                    : "danger"
+                              }`}
+                            >
+                              {r.paymentStatus
+                                ? r.paymentStatus.charAt(0).toUpperCase() +
+                                  r.paymentStatus.slice(1)
+                                : "Pending"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Bookings History */}
+            <h6 className="fw-bold mb-2">Bookings History</h6>
+            {!historyDetails?.bookings || historyDetails.bookings.length === 0 ? (
+              <p className="text-muted small mb-0">No booking records for this customer.</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-sm table-bordered align-middle small mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Suit</th>
+                      <th>Booking Date</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyDetails.bookings.map((b) => (
+                      <tr key={b._id}>
+                        <td>{b.suit?.name || b.suitName || "-"}</td>
+                        <td>
+                          {b.bookingDate
+                            ? new Date(b.bookingDate).toLocaleDateString()
+                            : "-"}
+                        </td>
+                        <td className="fw-bold">${b.price || b.totalAmount || 0}</td>
+                        <td>
+                          <span className="badge bg-info">
+                            {b.status
+                              ? b.status.charAt(0).toUpperCase() + b.status.slice(1)
+                              : "Reserved"}
+                          </span>
+                        </td>
+                        <td>{b.notes || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         )}
       </Modal>
     </div>

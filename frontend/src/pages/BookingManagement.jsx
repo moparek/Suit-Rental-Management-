@@ -92,12 +92,24 @@ function BookingManagement() {
 
   const filtered = rentals
     .filter((r) => {
+      // Exclude manual walk-in rentals created by staff/admin (only display online customer account bookings)
+      if (r.isOnlineBooking === false) return false;
+      if (
+        r.isOnlineBooking === undefined &&
+        (r.rentalStatus === "active" ||
+          r.rentalStatus === "returned" ||
+          r.rentalStatus === "overdue")
+      ) {
+        return false;
+      }
+
       const st = (r.status || r.rentalStatus || "").toLowerCase();
       if (filterStatus !== "all" && st !== filterStatus) return false;
       const q = search.toLowerCase();
       return (
         !q ||
         r.customer?.name?.toLowerCase().includes(q) ||
+        r.customer?.fullName?.toLowerCase().includes(q) ||
         r.customer?.email?.toLowerCase().includes(q) ||
         r.customer?.phone?.includes(q) ||
         r.suit?.name?.toLowerCase().includes(q)
