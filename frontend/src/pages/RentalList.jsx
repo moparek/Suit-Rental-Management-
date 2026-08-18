@@ -161,6 +161,7 @@ function RentalList() {
                   <th>Return Date</th>
                   <th>Status</th>
                   <th>Payment</th>
+                  <th>Handled By</th>
                   <th className="text-end">Actions</th>
                 </tr>
               </thead>
@@ -196,6 +197,15 @@ function RentalList() {
                       >
                         {formatPaymentStatus(r.paymentStatus)}
                       </span>
+                    </td>
+                    <td>
+                      {r.handledBy?.name ? (
+                        <span className="badge bg-light text-dark border">
+                          {r.handledBy.name} ({r.handledBy.role || "Staff"})
+                        </span>
+                      ) : (
+                        <span className="text-muted small">-</span>
+                      )}
                     </td>
                     <td className="text-end">
                       {(() => {

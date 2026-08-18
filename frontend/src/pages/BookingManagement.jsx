@@ -178,6 +178,7 @@ function BookingManagement() {
                   <th>Days</th>
                   <th>Total</th>
                   <th>Status</th>
+                  <th>Handled By</th>
                   <th className="text-end">Actions</th>
                 </tr>
               </thead>
@@ -215,6 +216,15 @@ function BookingManagement() {
                         <span className={`badge bg-${statusBadge[st] || "secondary"}`}>
                           {st.charAt(0).toUpperCase() + st.slice(1)}
                         </span>
+                      </td>
+                      <td>
+                        {r.handledBy?.name ? (
+                          <span className="badge bg-light text-dark border">
+                            {r.handledBy.name} ({r.handledBy.role || "Staff"})
+                          </span>
+                        ) : (
+                          <span className="text-muted small">-</span>
+                        )}
                       </td>
                       <td className="text-end">
                         <div className="d-flex gap-1 justify-content-end flex-wrap">
