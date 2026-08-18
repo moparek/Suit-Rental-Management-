@@ -19,7 +19,11 @@ function Navbar() {
         <small className="text-muted">📍 Dero Mall • 📞 063-409876543 • ✉️ hargiesa@gmail.com</small>
       </div>
       <div className="d-flex align-items-center gap-3">
-      
+        {user?.name && (
+          <span className="d-none d-sm-inline small text-muted">
+            <FaUserCircle className="me-1" /> {user.name} ({user.role})
+          </span>
+        )}
         <button
           className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
           onClick={handleLogout}

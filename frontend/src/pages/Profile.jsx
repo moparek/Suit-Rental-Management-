@@ -18,7 +18,7 @@ function Profile() {
         setUser(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
       } catch (err) {
-        // Fallback to localStorage data if fetch fails
+        console.warn("Could not fetch latest profile, using local session data:", err);
       } finally {
         setLoading(false);
       }

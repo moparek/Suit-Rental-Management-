@@ -17,20 +17,21 @@ function CustomerBookSuit() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    const fetchSuits = async () => {
+      try {
+        const res = await suitAPI.getAll();
+        const suitList = res.data.suits || res.data || [];
+        setSuits(suitList);
+      } catch (err) {
+        console.error("Failed to load suits:", err);
+        setError("Failed to load suits.");
+      } finally {
+        setLoadingSuits(false);
+      }
+    };
+
     fetchSuits();
   }, []);
-
-  const fetchSuits = async () => {
-    try {
-      const res = await suitAPI.getAll();
-      const suitList = res.data.suits || res.data || [];
-      setSuits(suitList);
-    } catch (err) {
-      setError("Failed to load suits.");
-    } finally {
-      setLoadingSuits(false);
-    }
-  };
 
   const calculateDays = () => {
     if (!startDate || !endDate) return 0;

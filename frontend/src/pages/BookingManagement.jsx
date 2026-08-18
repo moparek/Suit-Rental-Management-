@@ -9,7 +9,6 @@ import {
   FaCheck,
   FaTimes,
   FaPlay,
-  FaUndoAlt,
 } from "react-icons/fa";
 
 const PAGE_SIZE = 8;

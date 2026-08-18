@@ -19,19 +19,20 @@ function PublicBooking() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const fetchSuit = async () => {
+      try {
+        const res = await suitAPI.getOne(id);
+        setSuit(res.data);
+      } catch (err) {
+        console.error("Error loading suit:", err);
+        setError("Suit not found or error loading suit.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchSuit();
   }, [id]);
-
-  const fetchSuit = async () => {
-    try {
-      const res = await suitAPI.getOne(id);
-      setSuit(res.data);
-    } catch (err) {
-      setError("Suit not found or error loading suit.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const calculateDays = () => {
     if (!startDate || !endDate) return 0;
