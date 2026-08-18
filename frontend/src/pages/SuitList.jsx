@@ -159,7 +159,6 @@ function SuitList() {
             >
               <option value="">All Availability</option>
               <option value="true">Available</option>
-              <option value="false">Rented</option>
             </select>
           </div>
         </div>

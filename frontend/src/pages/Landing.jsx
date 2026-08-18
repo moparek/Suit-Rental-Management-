@@ -12,9 +12,7 @@ function Landing() {
   const categories = [
     "All",
     "Wedding",
-    "Business",
     "Casual",
-    "Traditional",
     "Formal",
     "Tuxedo",
   ];
