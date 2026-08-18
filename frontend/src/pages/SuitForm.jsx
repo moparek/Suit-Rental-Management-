@@ -183,14 +183,45 @@ function SuitForm() {
                 </label>
               </div>
             </div>
-            <div className="col-md-8 mb-3">
-              <label className="form-label">Image URL</label>
-              <input
-                className="form-control"
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                placeholder="https://example.com/suit.jpg"
-              />
+            <div className="col-md-12 mb-3">
+              <label className="form-label">Image URL / Upload Image</label>
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  value={form.image}
+                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                  placeholder="https://example.com/suit.jpg or choose a file from device"
+                />
+                <label className="btn btn-outline-secondary mb-0 d-flex align-items-center gap-1 cursor-pointer">
+                  📁 Choose File
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setForm({ ...form, image: reader.result });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+              {form.image && (
+                <div className="mt-2 d-flex align-items-center gap-2">
+                  <img
+                    src={form.image}
+                    alt="Preview"
+                    style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px" }}
+                    onError={(e) => { e.target.style.display = "none"; }}
+                  />
+                  <small className="text-muted">Image preview</small>
+                </div>
+              )}
             </div>
           </div>
 
