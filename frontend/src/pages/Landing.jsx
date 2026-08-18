@@ -47,9 +47,12 @@ function Landing() {
       <nav className="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm sticky-top">
         <div className="container">
           <Link className="navbar-brand fw-bold fs-4 text-primary" to="/">
-            <i className="bi bi-suit-spade-fill me-2"></i>SuitRental
+            <i className="bi bi-suit-spade-fill me-2"></i>Hargeisa Suits
           </Link>
-          <div className="d-flex ms-auto">
+          <div className="d-flex align-items-center gap-3 ms-auto">
+            <span className="text-muted small d-none d-md-inline">
+              📍 Dero Mall | ✉️ hargiesa@gmail.com | 📞 063-409876543
+            </span>
             <Link
               to="/login"
               className="btn btn-outline-primary px-4 rounded-pill"
@@ -286,11 +289,15 @@ function Landing() {
       {/* Footer */}
       <footer className="bg-white py-5 border-top mt-auto">
         <div className="container text-center text-muted">
-          <div className="mb-3">
+          <div className="mb-2">
             <i className="bi bi-suit-spade-fill fs-3 text-primary"></i>
           </div>
-          <p className="mb-0 fw-medium">
-            &copy; {new Date().getFullYear()} Suit Rental Management. All rights
+          <h5 className="fw-bold text-dark mb-1">Hargeisa Suits</h5>
+          <p className="mb-2 small">
+            📍 Dero Mall &bull; ✉️ hargiesa@gmail.com &bull; 📞 063-409876543
+          </p>
+          <p className="mb-0 small opacity-75">
+            &copy; {new Date().getFullYear()} Hargeisa Suits Rental Management. All rights
             reserved.
           </p>
         </div>

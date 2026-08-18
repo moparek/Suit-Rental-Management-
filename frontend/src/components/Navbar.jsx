@@ -14,7 +14,10 @@ function Navbar() {
 
   return (
     <nav className="topbar d-flex align-items-center justify-content-between px-4">
-      <h5 className="mb-0 fw-bold">Suit Rental Management</h5>
+      <div>
+        <h5 className="mb-0 fw-bold">Hargeisa Suits</h5>
+        <small className="text-muted">📍 Dero Mall • 📞 063-409876543 • ✉️ hargiesa@gmail.com</small>
+      </div>
       <div className="d-flex align-items-center gap-3">
       
         <button

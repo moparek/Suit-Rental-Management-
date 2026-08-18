@@ -17,7 +17,7 @@ const links = [
 function CustomerSidebar() {
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">👔 Suit Rental</div>
+      <div className="sidebar-brand">👔 Hargeisa Suits</div>
       <ul className="sidebar-nav">
         {links.map((link) => (
           <li key={link.to}>
