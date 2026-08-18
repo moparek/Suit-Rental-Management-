@@ -29,6 +29,9 @@ const buildDateQuery = (startDate, endDate) => {
   return query;
 };
 
+// Filter helper to exclude cancelled/rejected rentals
+const nonCancelledFilter = { rentalStatus: { $nin: ["cancelled", "rejected"] } };
+
 const buildYearlyTrend = (rentals) => {
   const monthlyMap = {};
   const monthlyRentalMap = {};
@@ -38,7 +41,7 @@ const buildYearlyTrend = (rentals) => {
   });
 
   rentals.forEach((rental) => {
-    if (rental.createdAt) {
+    if (rental.createdAt && rental.rentalStatus !== "cancelled" && rental.rentalStatus !== "rejected") {
       const monthName = MONTHS[new Date(rental.createdAt).getMonth()];
       monthlyMap[monthName] += rental.totalAmount || 0;
       monthlyRentalMap[monthName] += 1;
@@ -88,7 +91,7 @@ const buildRangeTrend = (rentals, startDate, endDate) => {
   }
 
   rentals.forEach((rental) => {
-    if (!rental.createdAt) return;
+    if (!rental.createdAt || rental.rentalStatus === "cancelled" || rental.rentalStatus === "rejected") return;
     const created = new Date(rental.createdAt);
     for (const bucket of buckets) {
       if (created >= bucket.dayStart && created <= bucket.dayEnd) {
@@ -108,7 +111,7 @@ const buildRangeTrend = (rentals, startDate, endDate) => {
 const buildRentalsByCategory = (rentals) => {
   const categoryMap = {};
   rentals.forEach((rental) => {
-    if (rental.suit && rental.suit.category) {
+    if (rental.rentalStatus !== "cancelled" && rental.rentalStatus !== "rejected" && rental.suit && rental.suit.category) {
       const cat = rental.suit.category;
       categoryMap[cat] = (categoryMap[cat] || 0) + 1;
     }
@@ -136,7 +139,7 @@ const getDashboardStats = async (req, res) => {
         rentedSuits,
         pendingBookings,
         totalStaff,
-        paidRentals,
+        validRentals,
         rentalsList,
       ] = await Promise.all([
         Customer.countDocuments(),
@@ -147,11 +150,11 @@ const getDashboardStats = async (req, res) => {
         Suit.countDocuments({ status: "rented" }),
         Booking.countDocuments({ status: "pending" }),
         User.countDocuments(),
-        Rental.find({ paymentStatus: "paid" }),
-        Rental.find().populate("suit"),
+        Rental.find(nonCancelledFilter),
+        Rental.find(nonCancelledFilter).populate("suit"),
       ]);
 
-      const totalRevenue = paidRentals.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+      const totalRevenue = validRentals.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
       const utilizationRate = totalSuits > 0
         ? Math.round(((totalSuits - availableSuits) / totalSuits) * 100)
         : 0;
@@ -177,15 +180,20 @@ const getDashboardStats = async (req, res) => {
       });
     }
 
-    const [totalSuits, availableSuits, rentalsList, paidRentals, newCustomers] = await Promise.all([
+    const nonCancelledDateQuery = {
+      ...dateQuery,
+      rentalStatus: { $nin: ["cancelled", "rejected"] },
+    };
+
+    const [totalSuits, availableSuits, rentalsList, validRentals, newCustomers] = await Promise.all([
       Suit.countDocuments(),
       Suit.countDocuments({ status: "available" }),
-      Rental.find(dateQuery).populate("suit"),
-      Rental.find({ ...dateQuery, paymentStatus: "paid" }),
+      Rental.find(nonCancelledDateQuery).populate("suit"),
+      Rental.find(nonCancelledDateQuery),
       Customer.countDocuments(dateQuery),
     ]);
 
-    const totalRevenue = paidRentals.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+    const totalRevenue = validRentals.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
     const utilizationRate = totalSuits > 0
       ? Math.round(((totalSuits - availableSuits) / totalSuits) * 100)
       : 0;

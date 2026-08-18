@@ -98,6 +98,7 @@ const createRental = async (req, res) => {
       balance: totalAmount - (deposit || 0),
       paymentStatus,
       rentalStatus,
+      isOnlineBooking: false,
       notes,
     });
 
@@ -261,6 +262,7 @@ const createCustomerBooking = async (req, res) => {
       balance: totalAmount,
       paymentStatus: "pending",
       rentalStatus: "pending",
+      isOnlineBooking: true,
       notes,
     });
 

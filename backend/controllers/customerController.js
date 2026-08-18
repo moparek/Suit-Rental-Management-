@@ -106,4 +106,47 @@ const deleteCustomer = async (req, res) => {
   }
 };
 
-module.exports = {getCustomers,getCustomer,createCustomer,updateCustomer,deleteCustomer};
+const getCustomerHistory = async (req, res) => {
+  try {
+    const Rental = require("../Models/rentalModel");
+    const Booking = require("../Models/bookingModel");
+
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    const rentals = await Rental.find({ customer: req.params.id })
+      .populate("suit", "name category size color rentalPrice dailyRate image")
+      .sort({ createdAt: -1 });
+
+    const customerName = customer.name || customer.fullName || "";
+    const bookings = await Booking.find({
+      $or: [
+        { customer: req.params.id },
+        { phone: customer.phone },
+        ...(customerName ? [{ customerName }] : []),
+      ],
+    })
+      .populate("suit", "name category size color rentalPrice dailyRate image")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      customer,
+      rentals,
+      bookings,
+    });
+  } catch (error) {
+    console.error("Get customer history error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {
+  getCustomers,
+  getCustomer,
+  getCustomerHistory,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+};

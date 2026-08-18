@@ -15,12 +15,15 @@ const filterByDates = (query, startDate, endDate) => {
   return query;
 };
 
+// Non-cancelled filter helper
+const nonCancelledQuery = { rentalStatus: { $nin: ["cancelled", "rejected"] } };
+
 // @desc    Revenue Report
 // @route   GET /api/reports/revenue
 const getRevenueReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const query = filterByDates({}, startDate, endDate);
+    const query = filterByDates({ ...nonCancelledQuery }, startDate, endDate);
 
     const rentals = await Rental.find(query).sort({ createdAt: -1 });
 
@@ -39,10 +42,11 @@ const getRevenueReport = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const getRentalReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const query = filterByDates({}, startDate, endDate);
+    const query = filterByDates({ ...nonCancelledQuery }, startDate, endDate);
 
     const rentals = await Rental.find(query)
       .populate("customer", "name")
@@ -73,9 +77,8 @@ const getRentalReport = async (req, res) => {
 
 const getCustomerReport = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
     const customers = await Customer.find().lean();
-    const rentals = await Rental.find().populate("customer").lean();
+    const rentals = await Rental.find({ ...nonCancelledQuery }).populate("customer").lean();
 
     const customerSpentMap = {};
     const customerLastRentalMap = {};
@@ -106,10 +109,11 @@ const getCustomerReport = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const getSuitReport = async (req, res) => {
   try {
     const suits = await Suit.find().lean();
-    const rentals = await Rental.find().populate("suit").lean();
+    const rentals = await Rental.find({ ...nonCancelledQuery }).populate("suit").lean();
 
     const suitRentalCount = {};
     const suitRevenueMap = {};
@@ -138,4 +142,4 @@ const getSuitReport = async (req, res) => {
   }
 };
 
-module.exports = {getRevenueReport, getRentalReport, getCustomerReport, getSuitReport};
+module.exports = { getRevenueReport, getRentalReport, getCustomerReport, getSuitReport };

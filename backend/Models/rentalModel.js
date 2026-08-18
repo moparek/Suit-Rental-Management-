@@ -48,6 +48,10 @@ const rentalSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "rejected", "active", "returned", "overdue", "cancelled"],
       default: "pending",
     },
+    isOnlineBooking: {
+      type: Boolean,
+      default: false,
+    },
     notes: {
       type: String,
       trim: true,
