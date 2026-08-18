@@ -32,7 +32,7 @@ function CustomerDashboard() {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Dashboard</h2>
-        <Link to="/" className="btn btn-primary">Book a Suit</Link>
+        <Link to="/customer-book" className="btn btn-primary">Book a Suit</Link>
       </div>
 
       <div className="row g-4 mb-5">

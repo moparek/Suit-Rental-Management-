@@ -11,7 +11,7 @@ const links = [
   { to: "/customer-dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },
   { to: "/customer-bookings", label: "My Bookings", icon: <FaBookOpen /> },
   { to: "/customer-profile", label: "Profile", icon: <FaUserCircle /> },
-  { to: "/", label: "Book a Suit", icon: <FaTshirt /> },
+  { to: "/customer-book", label: "Book a Suit", icon: <FaTshirt /> },
 ];
 
 function CustomerSidebar() {

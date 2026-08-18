@@ -25,6 +25,7 @@ import CustomerLayout from "./pages/customer/CustomerLayout";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import CustomerBookings from "./pages/customer/CustomerBookings";
 import CustomerProfile from "./pages/customer/CustomerProfile";
+import CustomerBookSuit from "./pages/customer/CustomerBookSuit";
 
 // Wraps protected pages with the sidebar/navbar/footer layout
 function PrivatePage({ children }) {
@@ -82,6 +83,14 @@ function App() {
           element={
             <CustomerPage>
               <CustomerProfile />
+            </CustomerPage>
+          }
+        />
+        <Route
+          path="/customer-book"
+          element={
+            <CustomerPage>
+              <CustomerBookSuit />
             </CustomerPage>
           }
         />
