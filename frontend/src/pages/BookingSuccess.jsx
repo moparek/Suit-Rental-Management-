@@ -34,7 +34,18 @@ function BookingSuccess() {
               </div>
 
               <div className="d-grid gap-2">
-                <Link to="/dashboard" className="btn btn-primary btn-lg">Go to Dashboard</Link>
+                {(() => {
+                  let role = null;
+                  try {
+                    role = JSON.parse(localStorage.getItem("user") || "null")?.role;
+                  } catch {
+                    role = null;
+                  }
+                  const dashboardPath = role === "customer" ? "/customer-dashboard" : role ? "/dashboard" : "/login";
+                  return (
+                    <Link to={dashboardPath} className="btn btn-primary btn-lg">Go to Dashboard</Link>
+                  );
+                })()}
                 <Link to="/" className="btn btn-outline-secondary">Return Home</Link>
               </div>
             </div>

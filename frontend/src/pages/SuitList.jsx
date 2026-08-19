@@ -57,9 +57,11 @@ function SuitList() {
   // For a given suit, find its currently active rental (if any) so the card
   // can show who has it, for how many days, and whether they've paid.
   const getActiveRental = (suitId) =>
-    rentals.find(
-      (r) => (r.suit?._id || r.suit) === suitId && r.status === "Active",
-    );
+    rentals.find((r) => {
+      const id = r.suit?._id || r.suit;
+      const st = String(r.status || r.rentalStatus || "").toLowerCase();
+      return id === suitId && (st === "active" || st === "accepted" || st === "reserved");
+    });
 
   useEffect(() => {
     fetchSuits();
@@ -192,12 +194,16 @@ function SuitList() {
                       {suit.category} • Size {suit.size} • {suit.color}
                     </p>
                     <p className="fw-bold text-primary mb-2">
-                      ${suit.rentalPrice}/day
+                      ${suit.dailyRate ?? suit.rentalPrice}/day
                     </p>
                     <span
-                      className={`badge bg-${suit.availability ? "success" : "secondary"} mb-2`}
+                      className={`badge bg-${suit.status === "available" ? "success" : suit.status === "reserved" ? "warning" : "secondary"} mb-2`}
                     >
-                      {suit.availability ? "Available" : "Rented"}
+                      {suit.status === "available"
+                        ? "Available"
+                        : suit.status
+                          ? suit.status.charAt(0).toUpperCase() + suit.status.slice(1)
+                          : "Unavailable"}
                     </span>
 
                     {activeRental && (
@@ -206,6 +212,7 @@ function SuitList() {
                           <FaUser size={12} />
                           <span>
                             {activeRental.customer?.fullName ||
+                              activeRental.customer?.name ||
                               "Unknown customer"}
                           </span>
                         </div>

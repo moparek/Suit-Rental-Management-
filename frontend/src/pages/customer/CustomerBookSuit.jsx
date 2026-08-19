@@ -19,8 +19,9 @@ function CustomerBookSuit() {
   useEffect(() => {
     const fetchSuits = async () => {
       try {
-        const res = await suitAPI.getAll();
-        const suitList = res.data.suits || res.data || [];
+        const res = await suitAPI.getAvailable();
+        const data = res?.data;
+        const suitList = Array.isArray(data) ? data : data?.suits || data?.data || [];
         setSuits(suitList);
       } catch (err) {
         console.error("Failed to load suits:", err);

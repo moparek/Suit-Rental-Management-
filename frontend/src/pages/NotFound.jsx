@@ -8,8 +8,8 @@ function NotFound() {
       <p className="lead mb-4">
         Oops! The page you are looking for doesn't exist.
       </p>
-      <Link to="/dashboard" className="btn btn-primary">
-        Back to Dashboard
+      <Link to="/" className="btn btn-primary">
+        Back to Home
       </Link>
     </div>
   );

@@ -14,7 +14,8 @@ function CustomerDashboard() {
   const fetchBookings = async () => {
     try {
       const res = await rentalAPI.getMyBookings();
-      setBookings(res.data);
+      const data = res?.data;
+      setBookings(Array.isArray(data) ? data : data?.rentals || data?.bookings || []);
     } catch (err) {
       console.error(err);
     } finally {

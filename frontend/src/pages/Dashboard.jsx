@@ -47,7 +47,8 @@ function Dashboard() {
           rentalAPI.getAll({ limit: 5, sort: "-createdAt" }),
         ]);
         setStats(statsRes.data);
-        setRecentRentals(rentalsRes.data.rentals || rentalsRes.data || []);
+        const rentalData = rentalsRes.data?.rentals || rentalsRes.data;
+        setRecentRentals(Array.isArray(rentalData) ? rentalData.slice(0, 5) : []);
       } catch (err) {
         setError(
           err.response?.data?.message || "Failed to load dashboard data",
@@ -145,24 +146,33 @@ function Dashboard() {
               <tbody>
                 {recentRentals.map((r) => (
                   <tr key={r._id}>
-                    <td>{r.customer?.fullName || "-"}</td>
+                    <td>{r.customer?.fullName || r.customer?.name || "-"}</td>
                     <td>{r.suit?.name || "-"}</td>
                     <td>
-                      {r.rentalDate
-                        ? new Date(r.rentalDate).toLocaleDateString()
+                      {r.startDate || r.rentalDate
+                        ? new Date(r.startDate || r.rentalDate).toLocaleDateString()
                         : "-"}
                     </td>
                     <td>
-                      {r.returnDate
-                        ? new Date(r.returnDate).toLocaleDateString()
+                      {r.endDate || r.returnDate
+                        ? new Date(r.endDate || r.returnDate).toLocaleDateString()
                         : "-"}
                     </td>
                     <td>
-                      <span
-                        className={`badge bg-${r.status === "Returned" ? "success" : "warning"}`}
-                      >
-                        {r.status || "Active"}
-                      </span>
+                      {(() => {
+                        const st = String(r.status || r.rentalStatus || "").toLowerCase();
+                        const colors = {
+                          pending: "warning",
+                          accepted: "info",
+                          rejected: "danger",
+                          active: "primary",
+                          returned: "success",
+                          overdue: "dark",
+                          cancelled: "secondary",
+                        };
+                        const label = st ? st.charAt(0).toUpperCase() + st.slice(1) : "Active";
+                        return <span className={`badge bg-${colors[st] || "secondary"}`}>{label}</span>;
+                      })()}
                     </td>
                   </tr>
                 ))}
