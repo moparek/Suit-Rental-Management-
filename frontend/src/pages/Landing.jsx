@@ -199,7 +199,7 @@ function Landing() {
                 <span className="lux-hero-title-highlight">Life's Defining Moments</span>
               </h1>
               <p className="lux-hero-desc">
-                From wedding tuxedos to executive suits — handcrafted elegance and a perfect fit, without the designer price tag.
+                From wedding tuxedos to executive suits handcrafted elegance and a perfect fit, without the designer price tag.
               </p>
               <div className="lux-search-box mb-4">
                 <FaMagnifyingGlass className="text-muted ms-2 fs-5" />
@@ -272,7 +272,7 @@ function Landing() {
           <div className="lux-section-intro">
             <span className="lux-eyebrow">Curated formalwear</span>
             <h2 className="lux-heading">Suits for every milestone</h2>
-            <p className="lux-lede">Walk down the aisle, attend a banquet, or lead a boardroom — find the cut tailored to the moment.</p>
+            <p className="lux-lede">Walk down the aisle, attend a banquet, or lead a boardroom find the cut tailored to the moment.</p>
           </div>
           <div className="row g-4">
             {occasions.map((occ, idx) => (
@@ -312,7 +312,7 @@ function Landing() {
           <div className="lux-section-intro lux-section-intro-light">
             <span className="lux-eyebrow lux-eyebrow-light">Signature looks</span>
             <h2 className="lux-heading text-white">Dress with intention</h2>
-            <p className="lux-lede lux-lede-light">Two refined directions — executive and heritage — in the same premium rental experience you sign in for.</p>
+            <p className="lux-lede lux-lede-light">Two refined directions executive and heritage in the same premium rental experience you sign in for.</p>
           </div>
           <div className="row g-4 justify-content-center">
             {signatureLooks.map((look) => (
@@ -445,7 +445,7 @@ function Landing() {
           <div className="lux-section-intro">
             <span className="lux-eyebrow">Seamless experience</span>
             <h2 className="lux-heading">How suit rental works</h2>
-            <p className="lux-lede">Three steps from browse to wear — the same account you use on login.</p>
+            <p className="lux-lede">Three steps from browse to wear the same account you use on login.</p>
           </div>
           <div className="row g-4">
             <div className="col-12 col-md-4">
@@ -486,7 +486,7 @@ function Landing() {
               <div className="col-lg-7 text-center text-lg-start">
                 <span className="lux-eyebrow lux-eyebrow-light mb-3 d-inline-block">Wedding season</span>
                 <h2 className="lux-heading text-white mb-3">Ready to dress with distinction?</h2>
-                <p className="lux-lede lux-lede-light mb-0">Reserve online or visit Dero Mall for a complimentary fitting — then sign in with the same account used across the system.</p>
+                <p className="lux-lede lux-lede-light mb-0">Reserve online or visit Dero Mall for a complimentary fitting then sign in with the same account used across the system.</p>
               </div>
               <div className="col-lg-5">
                 <div className="lux-cta-actions">
@@ -522,7 +522,7 @@ function Landing() {
               <p className="text-secondary small pe-lg-4 mb-4">The premier formalwear destination in Somaliland. Offering handcrafted luxury tuxedos, wedding collections, and executive suits with custom tailoring and concierge service.</p>
               <div className="d-flex gap-2">
                 <span className="lux-badge-gold">📍 Dero Mall Showroom</span>
-                <span className="lux-badge-gold">⭐ 4.9 Star Rated</span>
+                
               </div>
             </div>
 
@@ -558,8 +558,8 @@ function Landing() {
                   <a href="mailto:hargiesa@gmail.com" className="text-secondary text-decoration-none">hargiesa@gmail.com</a>
                 </li>
                 <li className="d-flex align-items-center gap-2">
-                  <FaClock className="text-warning flex-shrink-0" />
-                  <span>Mon - Sat: 9:00 AM - 9:00 PM</span>
+                 
+                  
                 </li>
               </ul>
             </div>
