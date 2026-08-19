@@ -147,7 +147,7 @@ REACT_APP_ENV=development
 
 **GitHub Repository:** https://github.com/moparek/Suit-Rental-Management-
 
-**Live Demo:** Add your Railway deployment link here.
+**Live Demo:** https://profound-surprise-production-bf4c.up.railway.app/.
 
 ## 🧩 Challenges and Solutions
 
