@@ -84,7 +84,7 @@ function Landing() {
     const handleScroll = () => { setIsScrolled(window.scrollY > 20); };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, ["casaul"]);
+  }, []);
 
   const fetchSuits = async () => {
     try {
@@ -134,7 +134,7 @@ function Landing() {
               <div className="lux-brand-icon"><FaUserTie /></div>
               <div>
                 <div className="lux-brand-title">Hargeisa Suits</div>
-                <div className="lux-brand-subtitle">Luxury Suit Rentals</div>
+                
               </div>
             </Link>
 
