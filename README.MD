@@ -147,7 +147,7 @@ REACT_APP_ENV=development
 
 **GitHub Repository:** https://github.com/moparek/Suit-Rental-Management-
 
-**Live Demo:** https://profound-surprise-production-bf4c.up.railway.app/.
+**Railway deployment :** https://profound-surprise-production-bf4c.up.railway.app/.
 
 ## 🧩 Challenges and Solutions
 
@@ -183,4 +183,4 @@ REACT_APP_ENV=development
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is owned by the Hargeisa Suits project team and was developed for academic purposes.
