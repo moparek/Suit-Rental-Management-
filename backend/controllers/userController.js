@@ -1,7 +1,6 @@
 const User = require("../Models/userModel");
 
-// @desc    Get all users/staff
-// @route   GET /api/users
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({ role: { $in: ["admin", "staff", "manager"] } }).select("-password").sort({ createdAt: -1 });
