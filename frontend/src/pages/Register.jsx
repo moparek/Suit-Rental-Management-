@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa6";
 import { authAPI } from "../services/api";
 import Alert from "../components/Alert";
 
@@ -67,7 +68,12 @@ function Register() {
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
-        <h3 className="text-center mb-4 fw-bold">Create Account</h3>
+        <div className="auth-header">
+          <Link to="/" className="back-arrow-btn" aria-label="Back to landing page" title="Back to landing page">
+            <FaArrowLeft />
+          </Link>
+          <h3 className="auth-title">Create Account</h3>
+        </div>
         {serverError && (
           <Alert
             type="danger"
