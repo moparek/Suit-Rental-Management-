@@ -4,7 +4,8 @@ import {
   FaTachometerAlt,
   FaBookOpen,
   FaUserCircle,
-  FaTshirt
+  FaTshirt,
+  FaTimes,
 } from "react-icons/fa";
 
 const links = [
@@ -14,15 +15,26 @@ const links = [
   { to: "/customer-book", label: "Book a Suit", icon: <FaTshirt /> },
 ];
 
-function CustomerSidebar() {
+function CustomerSidebar({ mobileOpen, onClose }) {
   return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">👔 Hargeisa Suits</div>
+    <aside className={`sidebar ${mobileOpen ? "mobile-open" : ""}`}>
+      <div className="sidebar-brand-wrapper">
+        <div className="sidebar-brand">👔 Hargeisa Suits</div>
+        <button
+          type="button"
+          className="sidebar-close-btn d-lg-none"
+          onClick={onClose}
+          aria-label="Close navigation"
+        >
+          <FaTimes />
+        </button>
+      </div>
       <ul className="sidebar-nav">
         {links.map((link) => (
           <li key={link.to}>
             <NavLink
               to={link.to}
+              onClick={onClose}
               className={({ isActive }) =>
                 "sidebar-link" + (isActive ? " active" : "")
               }

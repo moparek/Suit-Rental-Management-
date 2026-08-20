@@ -39,15 +39,15 @@ function CustomerBookings() {
         <div className="row g-4">
           {bookings.map((booking) => (
             <div key={booking._id} className="col-12 col-lg-6">
-              <div className="card shadow-sm h-100 border-0 flex-row overflow-hidden">
-                <div style={{ width: "150px", minWidth: "150px" }} className="bg-light d-flex align-items-center justify-content-center">
+              <div className="card shadow-sm h-100 border-0 flex-column flex-sm-row overflow-hidden">
+                <div style={{ width: "100%", minWidth: "140px", maxWidth: "100%", height: "160px" }} className="bg-light d-flex align-items-center justify-content-center flex-shrink-0">
                   {booking.suit?.image ? (
                     <img src={booking.suit.image} alt={booking.suit.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <i className="bi bi-suit-spade display-4 text-muted"></i>
                   )}
                 </div>
-                <div className="card-body d-flex flex-column">
+                <div className="card-body d-flex flex-column p-3 p-md-4">
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <h5 className="card-title fw-bold mb-0">{booking.suit?.name || "Unknown Suit"}</h5>
                     {(() => {

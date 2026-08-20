@@ -159,7 +159,7 @@ function CustomerBookSuit() {
 
         {/* Booking Form Details */}
         <div className="col-lg-5">
-          <div className="card border-0 shadow-sm p-4 sticky-top" style={{ top: "90px" }}>
+          <div className="card border-0 shadow-sm p-3 p-md-4">
             <h5 className="fw-bold mb-3">Booking Details</h5>
 
             {selectedSuit ? (

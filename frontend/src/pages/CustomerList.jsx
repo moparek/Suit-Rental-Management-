@@ -131,7 +131,7 @@ function CustomerList() {
           <div className="table-responsive">
             <table className="table table-hover align-middle">
               <thead>
-                <tr>
+                <tr className="text-nowrap">
                   <th>Full Name</th>
                   <th>Phone</th>
                   <th>Email</th>
@@ -148,7 +148,7 @@ function CustomerList() {
                     <td>{c.email}</td>
                     <td><code>{formatCustomerId(c)}</code></td>
                     <td>{c.address}</td>
-                    <td className="text-end">
+                    <td className="text-end text-nowrap">
                       <button
                         className="btn btn-sm btn-outline-secondary me-1"
                         onClick={() => setHistoryCustomer(c)}

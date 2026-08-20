@@ -131,15 +131,15 @@ function BookingManagement() {
       {success && <Alert type="success" message={success} onClose={() => setSuccess("")} />}
 
       <div className="card p-3 mb-4">
-        <div className="row g-3 align-items-end">
-          <div className="col-md-8">
+        <div className="row g-2 g-md-3 align-items-end">
+          <div className="col-12 col-md-8">
             <SearchBar
               value={search}
               onChange={setSearch}
               placeholder="Search by customer name, email, phone, or suit..."
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-12 col-md-4">
             <label className="form-label small fw-bold mb-1">Filter by Status</label>
             <select
               className="form-select"
@@ -168,7 +168,7 @@ function BookingManagement() {
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
               <thead>
-                <tr>
+                <tr className="text-nowrap">
                   <th>Customer</th>
                   <th>Contact</th>
                   <th>Suit</th>

@@ -76,14 +76,14 @@ function getDateRange(preset, customStart, customEnd) {
 
 function ReportCard({ icon, title, value }) {
   return (
-    <div className="col-md-3 col-sm-6 mb-4">
+    <div className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 mb-md-4">
       <div className="stat-card">
         <div className="stat-icon" style={{ color: "#4361ee" }}>
           {icon}
         </div>
-        <div>
-          <h4 className="mb-0">{value}</h4>
-          <small className="text-muted">{title}</small>
+        <div className="min-w-0">
+          <h4 className="mb-0 text-truncate">{value}</h4>
+          <small className="text-muted text-truncate d-block">{title}</small>
         </div>
       </div>
     </div>
@@ -93,8 +93,8 @@ function ReportCard({ icon, title, value }) {
 function ChartCard({ title, children }) {
   return (
     <div className="col-lg-6 mb-4">
-      <div className="card p-4 h-100">
-        <h5 className="fw-semibold mb-4">{title}</h5>
+      <div className="card p-3 p-md-4 h-100">
+        <h5 className="fw-semibold mb-3 mb-md-4">{title}</h5>
         {children}
       </div>
     </div>

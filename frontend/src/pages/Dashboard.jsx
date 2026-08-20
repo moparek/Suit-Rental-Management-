@@ -16,14 +16,14 @@ import {
 
 function StatCard({ icon, label, value, color }) {
   return (
-    <div className="col-md-3 col-sm-6 mb-4">
+    <div className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 mb-md-4">
       <div className="stat-card" style={{ borderLeft: `4px solid ${color}` }}>
         <div className="stat-icon" style={{ color }}>
           {icon}
         </div>
-        <div>
-          <h4 className="mb-0">{value}</h4>
-          <small className="text-muted">{label}</small>
+        <div className="min-w-0">
+          <h4 className="mb-0 text-truncate">{value}</h4>
+          <small className="text-muted text-truncate d-block">{label}</small>
         </div>
       </div>
     </div>

@@ -152,7 +152,7 @@ function RentalList() {
           <div className="table-responsive">
             <table className="table table-hover align-middle">
               <thead>
-                <tr>
+                <tr className="text-nowrap">
                   <th>Customer</th>
                   <th>ID</th>
                   <th>Suit</th>
@@ -174,12 +174,12 @@ function RentalList() {
                     </td>
                     <td>{r.suit?.name || "-"}</td>
                     <td>{daysBetween(r.rentalDate, r.returnDate) ?? "-"}</td>
-                    <td>
+                    <td className="text-nowrap">
                       {r.rentalDate
                         ? new Date(r.rentalDate).toLocaleDateString()
                         : "-"}
                     </td>
-                    <td>
+                    <td className="text-nowrap">
                       {r.returnDate
                         ? new Date(r.returnDate).toLocaleDateString()
                         : "-"}
@@ -200,14 +200,14 @@ function RentalList() {
                     </td>
                     <td>
                       {r.handledBy?.name ? (
-                        <span className="badge bg-light text-dark border">
+                        <span className="badge bg-light text-dark border text-nowrap">
                           {r.handledBy.name} ({r.handledBy.role || "Staff"})
                         </span>
                       ) : (
                         <span className="text-muted small">-</span>
                       )}
                     </td>
-                    <td className="text-end">
+                    <td className="text-end text-nowrap">
                       {(() => {
                         const st = (r.status || r.rentalStatus || "").toLowerCase();
                         return (st === "active" || st === "overdue") ? (

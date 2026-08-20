@@ -9,6 +9,7 @@ import {
   FaUserCircle,
   FaChartBar,
   FaPhoneAlt,
+  FaTimes,
 } from "react-icons/fa";
 
 const links = [
@@ -22,20 +23,31 @@ const links = [
   { to: "/profile", label: "Profile", icon: <FaUserCircle /> },
 ];
 
-function Sidebar() {
+function Sidebar({ mobileOpen, onClose }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const visibleLinks = links.filter(
     (link) => link.to !== "/staff" || user.role === "admin",
   );
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">👔 Hargeisa Suits</div>
+    <aside className={`sidebar ${mobileOpen ? "mobile-open" : ""}`}>
+      <div className="sidebar-brand-wrapper">
+        <div className="sidebar-brand">👔 Hargeisa Suits</div>
+        <button
+          type="button"
+          className="sidebar-close-btn d-lg-none"
+          onClick={onClose}
+          aria-label="Close navigation"
+        >
+          <FaTimes />
+        </button>
+      </div>
       <ul className="sidebar-nav">
         {visibleLinks.map((link) => (
           <li key={link.to}>
             <NavLink
               to={link.to}
+              onClick={onClose}
               className={({ isActive }) =>
                 "sidebar-link" + (isActive ? " active" : "")
               }

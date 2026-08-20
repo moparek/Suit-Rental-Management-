@@ -119,14 +119,14 @@ function SuitList() {
 
       <div className="card p-3 mb-4">
         <div className="row g-2">
-          <div className="col-md-4">
+          <div className="col-12 col-md-4">
             <SearchBar
               value={search}
               onChange={setSearch}
               placeholder="Search by suit name..."
             />
           </div>
-          <div className="col-md-3">
+          <div className="col-12 col-sm-4 col-md-3">
             <select
               className="form-select"
               value={category}
@@ -139,7 +139,7 @@ function SuitList() {
               <option value="Tuxedo">Tuxedo</option>
             </select>
           </div>
-          <div className="col-md-2">
+          <div className="col-12 col-sm-4 col-md-2">
             <select
               className="form-select"
               value={size}
@@ -153,7 +153,7 @@ function SuitList() {
               <option value="XXL">XXL</option>
             </select>
           </div>
-          <div className="col-md-3">
+          <div className="col-12 col-sm-4 col-md-3">
             <select
               className="form-select"
               value={availability}
@@ -171,14 +171,14 @@ function SuitList() {
       ) : paginated.length === 0 ? (
         <div className="card p-5 text-center text-muted">No suits found.</div>
       ) : (
-        <div className="row">
+        <div className="row g-3 g-md-4">
           {paginated.map((suit) => {
             const activeRental = getActiveRental(suit._id);
             const days = activeRental
               ? daysBetween(activeRental.rentalDate, activeRental.returnDate)
               : null;
             return (
-              <div className="col-md-3 col-sm-6 mb-4" key={suit._id}>
+              <div className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 mb-md-4" key={suit._id}>
                 <div className="suit-card">
                   <img
                     src={
