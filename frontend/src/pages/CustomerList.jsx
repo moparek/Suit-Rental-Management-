@@ -92,12 +92,15 @@ function CustomerList() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h3 className="fw-bold mb-0">Customers</h3>
+        <div>
+          <h3 className="fw-bold mb-1">Customer Directory</h3>
+          <p className="text-muted small mb-0">Manage customer records, identification, and rental histories.</p>
+        </div>
         <Link
           to="/customers/add"
           className="btn btn-primary d-flex align-items-center gap-2"
         >
-          <FaPlus /> Add Customer
+          <FaPlus size={13} /> Add Customer
         </Link>
       </div>
 
@@ -116,26 +119,27 @@ function CustomerList() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          placeholder="Search by name, email, or phone..."
+          placeholder="Search by full name, email, phone, or ID type..."
         />
       </div>
 
       {loading ? (
-        <Loader text="Loading customers..." />
+        <Loader text="Loading customer records..." />
       ) : paginated.length === 0 ? (
         <div className="card p-5 text-center text-muted">
-          No customers found.
+          <div className="mb-2 fs-2">👥</div>
+          <h5 className="fw-bold">No customers found</h5>
+          <p className="small mb-0">Try changing your search terms or add a new customer.</p>
         </div>
       ) : (
-        <div className="card p-3">
+        <div className="card p-0 overflow-hidden mb-4">
           <div className="table-responsive">
-            <table className="table table-hover align-middle">
+            <table className="table table-hover align-middle mb-0">
               <thead>
                 <tr className="text-nowrap">
                   <th>Full Name</th>
-                  <th>Phone</th>
-                  <th>Email</th>
-                  <th>ID</th>
+                  <th>Contact Information</th>
+                  <th>ID Verification</th>
                   <th>Address</th>
                   <th className="text-end">Actions</th>
                 </tr>
@@ -143,30 +147,55 @@ function CustomerList() {
               <tbody>
                 {paginated.map((c) => (
                   <tr key={c._id}>
-                    <td>{c.fullName}</td>
-                    <td>{c.phone}</td>
-                    <td>{c.email}</td>
-                    <td><code>{formatCustomerId(c)}</code></td>
-                    <td>{c.address}</td>
+                    <td>
+                      <div className="d-flex align-items-center gap-2">
+                        <div
+                          className="rounded-circle d-flex align-items-center justify-content-center bg-light text-primary fw-bold flex-shrink-0"
+                          style={{ width: "36px", height: "36px", fontSize: "0.85rem", border: "1px solid var(--border-subtle)" }}
+                        >
+                          {(c.fullName || c.name || "U").charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="fw-semibold">{c.fullName || c.name || "-"}</div>
+                          <small className="text-muted">Client Account</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>{c.phone || "-"}</div>
+                      <small className="text-muted">{c.email || "-"}</small>
+                    </td>
+                    <td>
+                      <span className="badge bg-secondary">
+                        {formatCustomerId(c)}
+                      </span>
+                    </td>
+                    <td className="small text-muted" style={{ maxWidth: "200px" }}>
+                      <span className="text-truncate d-inline-block" style={{ maxWidth: "180px" }}>
+                        {c.address || "-"}
+                      </span>
+                    </td>
                     <td className="text-end text-nowrap">
                       <button
                         className="btn btn-sm btn-outline-secondary me-1"
                         onClick={() => setHistoryCustomer(c)}
-                        title="View full customer information & rental history"
+                        title="View full customer history & rentals"
                       >
-                        <FaHistory />
+                        <FaHistory size={12} /> History
                       </button>
                       <Link
                         to={`/customers/edit/${c._id}`}
                         className="btn btn-sm btn-outline-primary me-1"
+                        title="Edit customer"
                       >
-                        <FaEdit />
+                        <FaEdit size={12} /> Edit
                       </Link>
                       <button
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => setDeleteId(c._id)}
+                        title="Delete customer"
                       >
-                        <FaTrash />
+                        <FaTrash size={12} />
                       </button>
                     </td>
                   </tr>
@@ -185,13 +214,12 @@ function CustomerList() {
 
       <Modal
         show={!!deleteId}
-        title="Delete Customer"
+        title="Delete Customer Record"
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
         confirmText="Delete"
       >
-        Are you sure you want to delete this customer? This action cannot be
-        undone.
+        Are you sure you want to delete this customer record? All associated contact logs will be affected.
       </Modal>
 
       {/* Full Customer Information & History Modal */}
@@ -204,35 +232,42 @@ function CustomerList() {
           <Loader text="Loading full customer information..." />
         ) : (
           <div>
-            {/* Customer Summary */}
-            <div className="bg-light p-3 rounded mb-4 border">
-              <div className="row g-2">
+            {/* Customer Summary Card */}
+            <div className="p-3 rounded mb-4 border" style={{ backgroundColor: "var(--bg-surface-subtle)" }}>
+              <div className="row g-2 small">
                 <div className="col-sm-6">
-                  <strong>Full Name:</strong> {historyCustomer?.fullName || historyCustomer?.name}
+                  <span className="text-muted">Full Name: </span>
+                  <strong>{historyCustomer?.fullName || historyCustomer?.name}</strong>
                 </div>
                 <div className="col-sm-6">
-                  <strong>Phone:</strong> {historyCustomer?.phone || "-"}
+                  <span className="text-muted">Phone: </span>
+                  <strong>{historyCustomer?.phone || "-"}</strong>
                 </div>
                 <div className="col-sm-6">
-                  <strong>Email:</strong> {historyCustomer?.email || "-"}
+                  <span className="text-muted">Email: </span>
+                  <strong>{historyCustomer?.email || "-"}</strong>
                 </div>
                 <div className="col-sm-6">
-                  <strong>ID Type:</strong> {formatCustomerId(historyCustomer)}
+                  <span className="text-muted">ID Type: </span>
+                  <strong>{formatCustomerId(historyCustomer)}</strong>
                 </div>
                 <div className="col-12">
-                  <strong>Address:</strong> {historyCustomer?.address || "-"}
+                  <span className="text-muted">Address: </span>
+                  <strong>{historyCustomer?.address || "-"}</strong>
                 </div>
               </div>
             </div>
 
             {/* Rentals History */}
-            <h6 className="fw-bold mb-2">Rentals History</h6>
+            <h6 className="fw-bold mb-2 text-primary small text-uppercase letter-spacing-wide">
+              Rentals History
+            </h6>
             {!historyDetails?.rentals || historyDetails.rentals.length === 0 ? (
               <p className="text-muted small mb-4">No rental records for this customer.</p>
             ) : (
-              <div className="table-responsive mb-4">
-                <table className="table table-sm table-bordered align-middle small mb-0">
-                  <thead className="table-light">
+              <div className="table-responsive mb-4 border rounded">
+                <table className="table table-sm align-middle small mb-0">
+                  <thead>
                     <tr>
                       <th>Suit</th>
                       <th>Rental Date</th>
@@ -270,7 +305,7 @@ function CustomerList() {
                                 ? new Date(r.returnDate).toLocaleDateString()
                                 : "-"}
                           </td>
-                          <td className="fw-bold">${r.totalAmount || 0}</td>
+                          <td className="fw-bold text-primary">${r.totalAmount || 0}</td>
                           <td>
                             <span className={`badge bg-${statusColors[st] || "secondary"}`}>
                               {st ? st.charAt(0).toUpperCase() + st.slice(1) : "-"}
@@ -279,9 +314,9 @@ function CustomerList() {
                           <td>
                             <span
                               className={`badge bg-${
-                                r.paymentStatus === "paid"
+                                r.paymentStatus === "paid" || r.paymentStatus === "Paid"
                                   ? "success"
-                                  : r.paymentStatus === "partial"
+                                  : r.paymentStatus === "partial" || r.paymentStatus === "Partial"
                                     ? "secondary"
                                     : "danger"
                               }`}
@@ -301,13 +336,15 @@ function CustomerList() {
             )}
 
             {/* Bookings History */}
-            <h6 className="fw-bold mb-2">Bookings History</h6>
+            <h6 className="fw-bold mb-2 text-primary small text-uppercase letter-spacing-wide">
+              Bookings History
+            </h6>
             {!historyDetails?.bookings || historyDetails.bookings.length === 0 ? (
               <p className="text-muted small mb-0">No booking records for this customer.</p>
             ) : (
-              <div className="table-responsive">
-                <table className="table table-sm table-bordered align-middle small mb-0">
-                  <thead className="table-light">
+              <div className="table-responsive border rounded">
+                <table className="table table-sm align-middle small mb-0">
+                  <thead>
                     <tr>
                       <th>Suit</th>
                       <th>Booking Date</th>
@@ -325,7 +362,7 @@ function CustomerList() {
                             ? new Date(b.bookingDate).toLocaleDateString()
                             : "-"}
                         </td>
-                        <td className="fw-bold">${b.price || b.totalAmount || 0}</td>
+                        <td className="fw-bold text-primary">${b.price || b.totalAmount || 0}</td>
                         <td>
                           <span className="badge bg-info">
                             {b.status

@@ -115,12 +115,15 @@ function RentalList() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h3 className="fw-bold mb-0">Rentals</h3>
+        <div>
+          <h3 className="fw-bold mb-1">Rental Ledger</h3>
+          <p className="text-muted small mb-0">Track active rentals, calculate durations, and record returns.</p>
+        </div>
         <Link
           to="/rentals/add"
           className="btn btn-primary d-flex align-items-center gap-2"
         >
-          <FaPlus /> New Rental
+          <FaPlus size={13} /> New Rental
         </Link>
       </div>
 
@@ -139,27 +142,30 @@ function RentalList() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          placeholder="Search by customer or suit name..."
+          placeholder="Search by customer name, ID, or suit name..."
         />
       </div>
 
       {loading ? (
-        <Loader text="Loading rentals..." />
+        <Loader text="Loading rental ledger..." />
       ) : paginated.length === 0 ? (
-        <div className="card p-5 text-center text-muted">No rentals found.</div>
+        <div className="card p-5 text-center text-muted">
+          <div className="mb-2 fs-2">👔</div>
+          <h5 className="fw-bold">No active rentals found</h5>
+          <p className="small mb-0">Try changing your search terms or create a new rental.</p>
+        </div>
       ) : (
-        <div className="card p-3">
+        <div className="card p-0 overflow-hidden mb-4">
           <div className="table-responsive">
-            <table className="table table-hover align-middle">
+            <table className="table table-hover align-middle mb-0">
               <thead>
                 <tr className="text-nowrap">
                   <th>Customer</th>
-                  <th>ID</th>
-                  <th>Suit</th>
-                  <th>Days</th>
-                  <th>Rental Date</th>
-                  <th>Return Date</th>
-                  <th>Status</th>
+                  <th>ID Verification</th>
+                  <th>Suit Rented</th>
+                  <th>Duration</th>
+                  <th>Rental Dates</th>
+                  <th>Rental Status</th>
                   <th>Payment</th>
                   <th>Handled By</th>
                   <th className="text-end">Actions</th>
@@ -168,21 +174,26 @@ function RentalList() {
               <tbody>
                 {paginated.map((r) => (
                   <tr key={r._id}>
-                    <td>{r.customer?.fullName || r.customer?.name || "-"}</td>
                     <td>
-                      <code>{getCustomerId(r.customer)}</code>
+                      <div className="fw-semibold">{r.customer?.fullName || r.customer?.name || "-"}</div>
                     </td>
-                    <td>{r.suit?.name || "-"}</td>
-                    <td>{daysBetween(r.rentalDate, r.returnDate) ?? "-"}</td>
-                    <td className="text-nowrap">
-                      {r.rentalDate
-                        ? new Date(r.rentalDate).toLocaleDateString()
-                        : "-"}
+                    <td>
+                      <span className="badge bg-secondary">
+                        {getCustomerId(r.customer)}
+                      </span>
                     </td>
-                    <td className="text-nowrap">
-                      {r.returnDate
-                        ? new Date(r.returnDate).toLocaleDateString()
-                        : "-"}
+                    <td>
+                      <span className="fw-semibold text-primary">{r.suit?.name || "-"}</span>
+                    </td>
+                    <td>
+                      <span className="badge bg-secondary">
+                        {daysBetween(r.rentalDate, r.returnDate) ?? "-"} days
+                      </span>
+                    </td>
+                    <td className="small text-muted text-nowrap">
+                      {r.rentalDate ? new Date(r.rentalDate).toLocaleDateString() : "-"}
+                      {" → "}
+                      {r.returnDate ? new Date(r.returnDate).toLocaleDateString() : "-"}
                     </td>
                     <td>
                       {(() => {
@@ -200,8 +211,8 @@ function RentalList() {
                     </td>
                     <td>
                       {r.handledBy?.name ? (
-                        <span className="badge bg-light text-dark border text-nowrap">
-                          {r.handledBy.name} ({r.handledBy.role || "Staff"})
+                        <span className="badge bg-secondary text-truncate" style={{ maxWidth: "120px" }}>
+                          {r.handledBy.name}
                         </span>
                       ) : (
                         <span className="text-muted small">-</span>
@@ -216,21 +227,23 @@ function RentalList() {
                             onClick={() => setReturnId(r._id)}
                             title="Return Suit"
                           >
-                            <FaUndoAlt /> Return
+                            <FaUndoAlt size={11} /> Return
                           </button>
                         ) : null;
                       })()}
                       <Link
                         to={`/rentals/edit/${r._id}`}
                         className="btn btn-sm btn-outline-primary me-1"
+                        title="Edit rental record"
                       >
-                        <FaEdit />
+                        <FaEdit size={12} />
                       </Link>
                       <button
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => setDeleteId(r._id)}
+                        title="Delete rental record"
                       >
-                        <FaTrash />
+                        <FaTrash size={12} />
                       </button>
                     </td>
                   </tr>

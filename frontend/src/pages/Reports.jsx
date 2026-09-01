@@ -74,27 +74,37 @@ function getDateRange(preset, customStart, customEnd) {
   return { startDate: formatDateInput(start), endDate: formatDateInput(end) };
 }
 
-function ReportCard({ icon, title, value }) {
+function ReportCard({ icon, title, value, color = "var(--brand-primary)" }) {
   return (
-    <div className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 mb-md-4">
-      <div className="stat-card">
-        <div className="stat-icon" style={{ color: "#4361ee" }}>
+    <div className="col-12 col-sm-6 col-lg-3 mb-3 mb-md-4">
+      <div className="stat-card" style={{ borderLeft: `4px solid ${color}` }}>
+        <div
+          className="stat-icon"
+          style={{
+            color,
+            backgroundColor: "var(--bg-surface-subtle)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
           {icon}
         </div>
-        <div className="min-w-0">
-          <h4 className="mb-0 text-truncate">{value}</h4>
-          <small className="text-muted text-truncate d-block">{title}</small>
+        <div className="min-w-0 flex-1">
+          <div className="stat-value">{value}</div>
+          <div className="stat-label">{title}</div>
         </div>
       </div>
     </div>
   );
 }
 
-function ChartCard({ title, children }) {
+function ChartCard({ title, subtitle, children }) {
   return (
     <div className="col-lg-6 mb-4">
       <div className="card p-3 p-md-4 h-100">
-        <h5 className="fw-semibold mb-3 mb-md-4">{title}</h5>
+        <div className="mb-3 mb-md-4">
+          <h5 className="fw-bold mb-1">{title}</h5>
+          {subtitle && <small className="text-muted">{subtitle}</small>}
+        </div>
         {children}
       </div>
     </div>

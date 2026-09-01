@@ -81,8 +81,8 @@ function CustomerSearchSelect({ customers = [], value, onChange, isInvalid }) {
   return (
     <div className="position-relative" ref={containerRef}>
       <div className="input-group">
-        <span className="input-group-text bg-white text-muted">
-          <FaSearch />
+        <span className="input-group-text">
+          <FaSearch size={14} />
         </span>
         <input
           type="text"
@@ -95,26 +95,26 @@ function CustomerSearchSelect({ customers = [], value, onChange, isInvalid }) {
         {value && (
           <button
             type="button"
-            className="btn btn-outline-secondary"
+            className="btn btn-outline-secondary border-start-0"
             onClick={handleClear}
             title="Clear selected customer"
           >
-            <FaTimes />
+            <FaTimes size={13} />
           </button>
         )}
       </div>
 
       {isOpen && (
         <div
-          className="position-absolute w-100 bg-white border rounded shadow mt-1"
-          style={{ maxHeight: "250px", overflowY: "auto", zIndex: 1050 }}
+          className="position-absolute w-100 customer-dropdown-menu mt-1"
+          style={{ zIndex: 1050 }}
         >
           {filteredCustomers.length === 0 ? (
             <div className="p-3 text-muted text-center small">
               No customer found matching "{searchTerm}"
             </div>
           ) : (
-            <div className="list-group list-group-flush">
+            <div>
               {filteredCustomers.slice(0, 50).map((c) => {
                 const name = c.fullName || c.name || "Unnamed Customer";
                 const isSelected = c._id === value;
@@ -122,28 +122,28 @@ function CustomerSearchSelect({ customers = [], value, onChange, isInvalid }) {
                   <button
                     type="button"
                     key={c._id}
-                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2 text-start ${
+                    className={`w-100 customer-dropdown-item d-flex align-items-center justify-content-between text-start border-0 ${
                       isSelected ? "active" : ""
                     }`}
                     onClick={() => handleSelect(c)}
                   >
                     <div>
-                      <div className="fw-semibold">
-                        <FaUser className="me-2 text-secondary" />
+                      <div className="fw-semibold small">
+                        <FaUser className="me-2 text-primary opacity-75" size={12} />
                         {name}
                       </div>
-                      <small className={isSelected ? "text-white-50" : "text-muted"}>
+                      <small className="text-muted">
                         {c.phone || "No phone"}
                       </small>
                     </div>
                     {isSelected && (
-                      <span className="badge bg-light text-primary ms-2">Selected</span>
+                      <span className="badge bg-primary ms-2">Selected</span>
                     )}
                   </button>
                 );
               })}
               {filteredCustomers.length > 50 && (
-                <div className="p-2 text-center text-muted small bg-light">
+                <div className="p-2 text-center text-muted small border-top" style={{ backgroundColor: "var(--bg-surface-subtle)" }}>
                   Showing first 50 results. Type to refine your search.
                 </div>
               )}

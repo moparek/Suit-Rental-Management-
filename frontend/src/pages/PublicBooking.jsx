@@ -82,70 +82,85 @@ function PublicBooking() {
     }
   };
 
-  if (loading) return <div className="container mt-5 text-center">Loading...</div>;
-  if (!suit) return <div className="container mt-5 text-center alert alert-danger">{error}</div>;
+  if (loading) return <div className="container py-5 text-center"><Loader text="Loading garment details..." /></div>;
+  if (!suit) return <div className="container py-5 text-center"><Alert type="danger" message={error || "Suit not found."} /></div>;
 
   return (
-    <div className="container my-5">
-      <Link to="/" className="btn btn-outline-secondary mb-4">&larr; Back to Suits</Link>
-      <div className="row">
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body p-0">
-               {suit.image ? (
-                 <img src={suit.image} alt={suit.name} style={{ width: "100%", maxHeight: "500px", objectFit: "cover" }} />
-               ) : (
-                 <div className="bg-light text-center py-5 h-100 d-flex flex-column justify-content-center">
-                   <i className="bi bi-image display-1 text-muted"></i>
-                   <p className="mt-3">No image available</p>
-                 </div>
-               )}
-            </div>
+    <div className="container my-4 my-md-5" style={{ maxWidth: "1050px" }}>
+      <Link to="/" className="btn btn-outline-secondary mb-4 d-inline-flex align-items-center gap-2">
+        &larr; Back to Collection
+      </Link>
+
+      <div className="row g-4 g-lg-5">
+        <div className="col-md-6">
+          <div className="card overflow-hidden h-100 p-0 border-0 shadow-lg position-relative" style={{ borderRadius: "var(--radius-lg)" }}>
+            {suit.image ? (
+              <img
+                src={suit.image}
+                alt={suit.name}
+                style={{ width: "100%", height: "100%", minHeight: "440px", objectFit: "cover" }}
+              />
+            ) : (
+              <div className="bg-light text-center py-5 h-100 d-flex flex-column justify-content-center">
+                <div className="fs-1 mb-2">👔</div>
+                <p className="text-muted">No high-res photo available</p>
+              </div>
+            )}
+            <span
+              className={`badge position-absolute top-0 end-0 m-3 bg-${
+                suit.status === "available" ? "success" : "secondary"
+              }`}
+              style={{ fontSize: "0.85rem", padding: "0.5rem 0.85rem", backdropFilter: "blur(8px)" }}
+            >
+              {suit.status === "available" ? "Available for Rent" : "Unavailable"}
+            </span>
           </div>
         </div>
         
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h2 className="card-title fw-bold">{suit.name}</h2>
-              <h4 className="text-primary mb-4">${suit.dailyRate} / day</h4>
-              
-              <div className="row mb-4">
-                <div className="col-6">
-                  <p className="mb-1 text-muted">Category</p>
-                  <p className="fw-bold">{suit.category}</p>
-                </div>
-                <div className="col-6">
-                  <p className="mb-1 text-muted">Status</p>
-                  <p className="fw-bold text-success">
-                    {suit.status === "available" ? "Available" : "Unavailable"}
-                  </p>
-                </div>
-                <div className="col-6">
-                  <p className="mb-1 text-muted">Size</p>
-                  <p className="fw-bold">{suit.size}</p>
-                </div>
-                <div className="col-6">
-                  <p className="mb-1 text-muted">Color</p>
-                  <p className="fw-bold">{suit.color}</p>
-                </div>
+        <div className="col-md-6">
+          <div className="card p-4 p-md-5">
+            <div>
+              <div className="small text-muted text-uppercase letter-spacing-wide mb-1">{suit.category} Collection</div>
+              <h2 className="fw-bold mb-2">{suit.name}</h2>
+              <div className="d-flex align-items-baseline gap-2 mb-4">
+                <span className="fs-2 fw-bold text-primary">${suit.dailyRate ?? suit.rentalPrice}</span>
+                <span className="text-muted">/ rental day</span>
               </div>
               
-              <hr />
+              <div className="row g-3 mb-4 p-3 rounded border" style={{ backgroundColor: "var(--bg-surface-subtle)" }}>
+                <div className="col-6">
+                  <span className="small text-muted d-block">Garment Size</span>
+                  <span className="fw-bold">Size {suit.size}</span>
+                </div>
+                <div className="col-6">
+                  <span className="small text-muted d-block">Fabric Color</span>
+                  <span className="fw-bold">{suit.color}</span>
+                </div>
+                <div className="col-6">
+                  <span className="small text-muted d-block">Condition</span>
+                  <span className="fw-bold">{suit.condition || "Pristine"}</span>
+                </div>
+                <div className="col-6">
+                  <span className="small text-muted d-block">Availability</span>
+                  <span className={`fw-bold text-${suit.status === "available" ? "success" : "danger"}`}>
+                    {suit.status === "available" ? "Ready Now" : "Rented Out"}
+                  </span>
+                </div>
+              </div>
 
               {suit.status !== "available" ? (
-                <div className="alert alert-warning">
-                  This suit is currently unavailable for booking.
+                <div className="alert alert-warning border-0">
+                  This garment is currently rented or being prepped by our atelier.
                 </div>
               ) : (
                 <form onSubmit={handleBook}>
-                  <h5 className="mb-3">Book this suit</h5>
+                  <h5 className="fw-bold mb-3">Schedule Your Fitting & Rental</h5>
                   
-                  {error && <div className="alert alert-danger">{error}</div>}
+                  {error && <Alert type="danger" message={error} onClose={() => setError("")} />}
                   
                   <div className="row g-3 mb-4">
                     <div className="col-sm-6">
-                      <label className="form-label">Start Date</label>
+                      <label className="form-label small fw-bold">Pickup Date *</label>
                       <input 
                         type="date" 
                         className="form-control" 
@@ -156,7 +171,7 @@ function PublicBooking() {
                       />
                     </div>
                     <div className="col-sm-6">
-                      <label className="form-label">End Date</label>
+                      <label className="form-label small fw-bold">Return Date *</label>
                       <input 
                         type="date" 
                         className="form-control" 
@@ -169,34 +184,34 @@ function PublicBooking() {
                   </div>
 
                   {days > 0 && (
-                    <div className="bg-light p-3 rounded mb-4">
-                      <div className="d-flex justify-content-between mb-2">
+                    <div className="p-3 rounded mb-4 border" style={{ backgroundColor: "var(--bg-surface-subtle)" }}>
+                      <div className="d-flex justify-content-between mb-2 small text-muted">
                         <span>Duration:</span>
                         <strong>{days} {days === 1 ? 'day' : 'days'}</strong>
                       </div>
-                      <div className="d-flex justify-content-between mb-2">
-                        <span>Price per day:</span>
-                        <strong>${suit.dailyRate}</strong>
+                      <div className="d-flex justify-content-between mb-2 small text-muted">
+                        <span>Daily Rate:</span>
+                        <strong>${suit.dailyRate ?? suit.rentalPrice}</strong>
                       </div>
                       <hr className="my-2" />
-                      <div className="d-flex justify-content-between">
-                        <span className="fs-5">Estimated Total:</span>
-                        <strong className="fs-5 text-primary">${estimatedTotal}</strong>
+                      <div className="d-flex justify-content-between align-items-baseline">
+                        <span className="fw-bold">Estimated Total:</span>
+                        <strong className="fs-3 text-primary">${estimatedTotal}</strong>
                       </div>
                     </div>
                   )}
 
                   <button 
                     type="submit" 
-                    className="btn btn-primary w-100 py-3 fs-5"
+                    className="btn btn-primary w-100 py-3 fw-bold fs-6"
                     disabled={submitting || days < 1}
                   >
-                    {submitting ? "Processing..." : "Confirm Booking"}
+                    {submitting ? "Processing..." : "Confirm Reservation"}
                   </button>
                   
                   {!localStorage.getItem("token") && (
                     <div className="text-center mt-3 text-muted small">
-                      You will be asked to log in or register on the next step.
+                      You will be asked to sign in or create an account on the next step.
                     </div>
                   )}
                 </form>

@@ -113,12 +113,15 @@ function StaffList() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h3 className="fw-bold mb-0">Staff</h3>
+        <div>
+          <h3 className="fw-bold mb-1">Staff Management</h3>
+          <p className="text-muted small mb-0">Manage system users, employee accounts, and role permissions.</p>
+        </div>
         <button
           className="btn btn-primary d-flex align-items-center gap-2"
           onClick={openAddForm}
         >
-          <FaPlus /> Add Staff
+          <FaPlus size={13} /> Add Staff Member
         </button>
       </div>
 
@@ -134,49 +137,70 @@ function StaffList() {
       )}
 
       {loading ? (
-        <Loader text="Loading staff..." />
+        <Loader text="Loading staff directory..." />
       ) : staff.length === 0 ? (
         <div className="card p-5 text-center text-muted">
-          No staff members found.
+          <div className="mb-2 fs-2">👔</div>
+          <h5 className="fw-bold">No staff members found</h5>
+          <p className="small mb-0">Add a staff member to grant them system access.</p>
         </div>
       ) : (
-        <div className="card p-3">
+        <div className="card p-0 overflow-hidden mb-4">
           <div className="table-responsive">
-            <table className="table table-hover align-middle">
+            <table className="table table-hover align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Role</th>
+                  <th>Team Member</th>
+                  <th>Contact Email</th>
+                  <th>Phone Number</th>
+                  <th>System Role</th>
                   <th className="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {staff.map((m) => (
                   <tr key={m._id}>
-                    <td>{m.name}</td>
-                    <td>{m.email}</td>
-                    <td>{m.phone}</td>
+                    <td>
+                      <div className="d-flex align-items-center gap-2">
+                        <div
+                          className="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white fw-bold"
+                          style={{ width: "34px", height: "34px", fontSize: "0.85rem" }}
+                        >
+                          {m.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="fw-semibold">{m.name}</div>
+                          <small className="text-muted text-capitalize">{m.role} Account</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="small text-muted">{m.email}</td>
+                    <td className="small text-muted">{m.phone}</td>
                     <td>
                       <span
-                        className={`badge bg-${m.role === "admin" ? "dark" : "info"}`}
+                        className={`badge ${
+                          m.role === "admin"
+                            ? "bg-primary"
+                            : "bg-secondary"
+                        }`}
                       >
-                        {m.role}
+                        {m.role ? m.role.toUpperCase() : "STAFF"}
                       </span>
                     </td>
                     <td className="text-end">
                       <button
                         className="btn btn-sm btn-outline-primary me-1"
                         onClick={() => openEditForm(m)}
+                        title="Edit staff member"
                       >
-                        <FaEdit />
+                        <FaEdit size={12} /> Edit
                       </button>
                       <button
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => setDeleteId(m._id)}
+                        title="Remove staff member"
                       >
-                        <FaTrash />
+                        <FaTrash size={12} />
                       </button>
                     </td>
                   </tr>

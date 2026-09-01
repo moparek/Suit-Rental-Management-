@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaTshirt,
@@ -10,17 +10,18 @@ import {
   FaChartBar,
   FaPhoneAlt,
   FaTimes,
+  FaCrown,
 } from "react-icons/fa";
 
 const links = [
-  { to: "/dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },
-  { to: "/suits", label: "Suits", icon: <FaTshirt /> },
-  { to: "/customers", label: "Customers", icon: <FaUsers /> },
-  { to: "/booking-management", label: "Bookings", icon: <FaClipboardList /> },
-  { to: "/rentals", label: "Rentals", icon: <FaPhoneAlt /> },
-  { to: "/staff", label: "Staff", icon: <FaUserTie /> },
-  { to: "/reports", label: "Reports", icon: <FaChartBar /> },
-  { to: "/profile", label: "Profile", icon: <FaUserCircle /> },
+  { to: "/dashboard", label: "Dashboard", icon: <FaTachometerAlt />, group: "Overview" },
+  { to: "/suits", label: "Suits Catalog", icon: <FaTshirt />, group: "Inventory" },
+  { to: "/customers", label: "Customers", icon: <FaUsers />, group: "Operations" },
+  { to: "/booking-management", label: "Bookings", icon: <FaClipboardList />, group: "Operations" },
+  { to: "/rentals", label: "Rentals", icon: <FaPhoneAlt />, group: "Operations" },
+  { to: "/staff", label: "Staff", icon: <FaUserTie />, group: "Administration" },
+  { to: "/reports", label: "Analytics & Reports", icon: <FaChartBar />, group: "Administration" },
+  { to: "/profile", label: "My Profile", icon: <FaUserCircle />, group: "Account" },
 ];
 
 function Sidebar({ mobileOpen, onClose }) {
@@ -32,7 +33,15 @@ function Sidebar({ mobileOpen, onClose }) {
   return (
     <aside className={`sidebar ${mobileOpen ? "mobile-open" : ""}`}>
       <div className="sidebar-brand-wrapper">
-        <div className="sidebar-brand">👔 Hargeisa Suits</div>
+        <Link to="/dashboard" className="sidebar-brand-link" onClick={onClose}>
+          <div className="sidebar-brand-icon">
+            <FaCrown size={18} />
+          </div>
+          <div>
+            <div className="sidebar-brand-title">Hargeisa Suits</div>
+            <div className="sidebar-brand-badge">Luxury Atelier</div>
+          </div>
+        </Link>
         <button
           type="button"
           className="sidebar-close-btn d-lg-none"
@@ -42,6 +51,7 @@ function Sidebar({ mobileOpen, onClose }) {
           <FaTimes />
         </button>
       </div>
+
       <ul className="sidebar-nav">
         {visibleLinks.map((link) => (
           <li key={link.to}>
@@ -58,6 +68,25 @@ function Sidebar({ mobileOpen, onClose }) {
           </li>
         ))}
       </ul>
+
+      <div className="sidebar-footer-card">
+        <div className="d-flex align-items-center gap-2">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white font-monospace"
+            style={{ width: "32px", height: "32px", fontSize: "0.8rem", fontWeight: "bold" }}
+          >
+            {(user.name || "U").charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="small fw-bold text-truncate text-white" style={{ fontSize: "0.82rem" }}>
+              {user.name || "Staff Member"}
+            </div>
+            <div className="text-muted small text-capitalize" style={{ fontSize: "0.72rem" }}>
+              {user.role || "User"}
+            </div>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 }

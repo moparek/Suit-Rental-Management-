@@ -1,19 +1,61 @@
+/* ==========================================================
+   HARGEISA SUITS - LUXURY AUTH & ERROR STYLES
+   ========================================================== */
+
 .auth-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #4361ee, #3a0ca3);
-  padding: 1rem;
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(79, 70, 229, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.2) 0%, transparent 40%),
+    linear-gradient(135deg, #090d16 0%, #0f172a 100%);
+  padding: 1.5rem 1rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .auth-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 2.5rem;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 2.75rem 2.25rem;
   width: 100%;
-  max-width: 420px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-width: 460px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+  position: relative;
+  z-index: 2;
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-card .form-label {
+  color: #cbd5e1;
+}
+
+.auth-card .form-control {
+  background-color: #162032;
+  border-color: #27364f;
+  color: #ffffff;
+}
+
+.auth-card .form-control:focus {
+  background-color: #1a273e;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  color: #ffffff;
+}
+
+.auth-card a {
+  color: #818cf8;
+}
+
+.auth-card a:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
 }
 
 .auth-header {
@@ -21,7 +63,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .back-arrow-btn {
@@ -32,36 +74,41 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  color: #4361ee;
-  background-color: #f0f3ff;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   text-decoration: none;
   font-size: 1.1rem;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .back-arrow-btn:hover {
-  background-color: #4361ee;
+  background-color: #4f46e5;
   color: #ffffff;
+  border-color: #4f46e5;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
 }
 
 .auth-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2b2d42;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
   text-align: center;
 }
 
 .demo-box {
-  background: #f4f6f9;
-  border: 1px dashed #cdd4e0;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
   padding: 0.9rem 1rem;
+  color: #94a3b8;
 }
 
 .not-found-wrapper {
@@ -71,19 +118,26 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 1rem;
+  padding: 2rem 1rem;
+  background-color: var(--bg-body);
+}
+
+.not-found-wrapper h1 {
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 1rem;
 }
 
 @media (max-width: 575.98px) {
-  .auth-wrapper {
-    padding: 0.75rem;
-  }
   .auth-card {
-    padding: 1.75rem 1.25rem;
-    border-radius: 12px;
+    padding: 2rem 1.35rem;
   }
   .auth-title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     padding-left: 2rem;
   }
 }

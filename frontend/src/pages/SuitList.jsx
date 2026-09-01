@@ -167,9 +167,13 @@ function SuitList() {
       </div>
 
       {loading ? (
-        <Loader text="Loading suits..." />
+        <Loader text="Loading luxury inventory..." />
       ) : paginated.length === 0 ? (
-        <div className="card p-5 text-center text-muted">No suits found.</div>
+        <div className="card p-5 text-center text-muted">
+          <div className="mb-2 fs-2">👔</div>
+          <h5 className="fw-bold">No suits found</h5>
+          <p className="small mb-0">Try changing your search terms or filters.</p>
+        </div>
       ) : (
         <div className="row g-3 g-md-4">
           {paginated.map((suit) => {
@@ -178,54 +182,76 @@ function SuitList() {
               ? daysBetween(activeRental.rentalDate, activeRental.returnDate)
               : null;
             return (
-              <div className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 mb-md-4" key={suit._id}>
+              <div className="col-12 col-sm-6 col-lg-4 col-xl-3" key={suit._id}>
                 <div className="suit-card">
-                  <img
-                    src={
-                      suit.image ||
-                      "https://via.placeholder.com/300x200?text=Suit"
-                    }
-                    alt={suit.name}
-                    className="suit-card-img"
-                  />
-                  <div className="p-3">
-                    <h6 className="fw-bold mb-1">{suit.name}</h6>
-                    <p className="text-muted small mb-1">
-                      {suit.category} • Size {suit.size} • {suit.color}
-                    </p>
-                    <p className="fw-bold text-primary mb-2">
-                      ${suit.dailyRate ?? suit.rentalPrice}/day
-                    </p>
+                  <div className="suit-card-img-wrap position-relative">
+                    <img
+                      src={
+                        suit.image ||
+                        "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&auto=format&fit=crop&q=60"
+                      }
+                      alt={suit.name}
+                      className="suit-card-img"
+                    />
                     <span
-                      className={`badge bg-${suit.status === "available" ? "success" : suit.status === "reserved" ? "warning" : "secondary"} mb-2`}
+                      className={`badge position-absolute top-0 end-0 m-3 bg-${
+                        suit.status === "available"
+                          ? "success"
+                          : suit.status === "reserved"
+                          ? "warning"
+                          : "secondary"
+                      }`}
+                      style={{ backdropFilter: "blur(6px)" }}
                     >
                       {suit.status === "available"
                         ? "Available"
                         : suit.status
-                          ? suit.status.charAt(0).toUpperCase() + suit.status.slice(1)
-                          : "Unavailable"}
+                        ? suit.status.charAt(0).toUpperCase() + suit.status.slice(1)
+                        : "Unavailable"}
                     </span>
+                  </div>
+
+                  <div className="p-3 d-flex flex-column flex-grow-1">
+                    <div className="d-flex justify-content-between align-items-start mb-1">
+                      <h6 className="fw-bold mb-0 text-truncate">{suit.name}</h6>
+                    </div>
+
+                    <div className="d-flex align-items-center gap-2 small text-muted mb-2">
+                      <span>{suit.category}</span>
+                      <span>•</span>
+                      <span>Size {suit.size}</span>
+                      <span>•</span>
+                      <span>{suit.color}</span>
+                    </div>
+
+                    <div className="d-flex align-items-baseline justify-content-between mb-3 mt-auto">
+                      <span className="text-muted small">Daily Rate</span>
+                      <span className="fs-5 fw-bold text-primary">
+                        ${suit.dailyRate ?? suit.rentalPrice}
+                        <span className="small text-muted fw-normal"> / day</span>
+                      </span>
+                    </div>
 
                     {activeRental && (
-                      <div className="reservation-info mt-2 mb-2">
+                      <div className="reservation-info mb-3">
                         <div className="d-flex align-items-center gap-2 small text-muted mb-1">
-                          <FaUser size={12} />
-                          <span>
+                          <FaUser size={11} className="text-primary opacity-75" />
+                          <span className="text-truncate">
                             {activeRental.customer?.fullName ||
                               activeRental.customer?.name ||
                               "Unknown customer"}
                           </span>
                         </div>
-                        <div className="d-flex align-items-center gap-2 small text-muted mb-1">
-                          <FaCalendarAlt size={12} />
-                          <span>
-                            {days} day{days === 1 ? "" : "s"} rental
+                        <div className="d-flex align-items-center justify-content-between small text-muted">
+                          <span className="d-flex align-items-center gap-1">
+                            <FaCalendarAlt size={11} />
+                            {days} day{days === 1 ? "" : "s"}
                           </span>
-                        </div>
-                        <div className="d-flex align-items-center gap-2 small">
-                          <FaMoneyBillWave size={12} />
                           <span
-                            className={`badge bg-${activeRental.paymentStatus === "Paid" ? "success" : "danger"}`}
+                            className={`badge bg-${
+                              activeRental.paymentStatus === "Paid" ? "success" : "danger"
+                            }`}
+                            style={{ fontSize: "0.68rem" }}
                           >
                             {activeRental.paymentStatus}
                           </span>
@@ -233,18 +259,18 @@ function SuitList() {
                       </div>
                     )}
 
-                    <div className="d-flex gap-2 mt-2">
+                    <div className="d-flex gap-2 pt-2 border-top">
                       <Link
                         to={`/suits/edit/${suit._id}`}
                         className="btn btn-sm btn-outline-primary flex-fill"
                       >
-                        <FaEdit /> Edit
+                        <FaEdit size={12} /> Edit
                       </Link>
                       <button
                         className="btn btn-sm btn-outline-danger flex-fill"
                         onClick={() => setDeleteId(suit._id)}
                       >
-                        <FaTrash /> Delete
+                        <FaTrash size={12} /> Delete
                       </button>
                     </div>
                   </div>
@@ -268,7 +294,7 @@ function SuitList() {
         onConfirm={handleDelete}
         confirmText="Delete"
       >
-        Are you sure you want to delete this suit? This action cannot be undone.
+        Are you sure you want to delete this suit from the inventory? This action cannot be undone.
       </Modal>
     </div>
   );

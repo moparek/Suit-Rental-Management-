@@ -105,19 +105,21 @@ function BookingList() {
         <Loader text="Loading bookings..." />
       ) : paginated.length === 0 ? (
         <div className="card p-5 text-center text-muted">
-          No bookings found.
+          <div className="mb-2 fs-2">📋</div>
+          <h5 className="fw-bold">No phone bookings found</h5>
+          <p className="small mb-0">Record manual or phone bookings directly from this screen.</p>
         </div>
       ) : (
-        <div className="card p-3">
+        <div className="card p-0 overflow-hidden mb-4">
           <div className="table-responsive">
-            <table className="table table-hover align-middle">
+            <table className="table table-hover align-middle mb-0">
               <thead>
                 <tr>
                   <th>Customer</th>
-                  <th>Phone</th>
-                  <th>Suit</th>
+                  <th>Phone Number</th>
+                  <th>Reserved Garment</th>
                   <th>Size</th>
-                  <th>Price</th>
+                  <th>Price Rate</th>
                   <th>Booking Date</th>
                   <th>Status</th>
                   <th className="text-end">Actions</th>
@@ -126,12 +128,18 @@ function BookingList() {
               <tbody>
                 {paginated.map((b) => (
                   <tr key={b._id}>
-                    <td>{b.customerName}</td>
-                    <td>{b.phone}</td>
-                    <td>{b.suit?.name || "-"}</td>
-                    <td>{b.size}</td>
-                    <td>${b.price}</td>
                     <td>
+                      <span className="fw-semibold">{b.customerName}</span>
+                    </td>
+                    <td className="small text-muted">{b.phone}</td>
+                    <td>
+                      <span className="fw-semibold text-primary">{b.suit?.name || "-"}</span>
+                    </td>
+                    <td>
+                      <span className="badge bg-secondary">{b.size}</span>
+                    </td>
+                    <td className="fw-bold text-primary">${b.price}</td>
+                    <td className="small text-muted">
                       {b.bookingDate
                         ? new Date(b.bookingDate).toLocaleDateString()
                         : "-"}
@@ -143,18 +151,20 @@ function BookingList() {
                         {b.status}
                       </span>
                     </td>
-                    <td className="text-end">
+                    <td className="text-end text-nowrap">
                       <Link
                         to={`/bookings/edit/${b._id}`}
                         className="btn btn-sm btn-outline-primary me-1"
+                        title="Edit booking"
                       >
-                        <FaEdit />
+                        <FaEdit size={12} />
                       </Link>
                       <button
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => setDeleteId(b._id)}
+                        title="Delete booking"
                       >
-                        <FaTrash />
+                        <FaTrash size={12} />
                       </button>
                     </td>
                   </tr>

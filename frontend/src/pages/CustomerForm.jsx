@@ -84,10 +84,20 @@ function CustomerForm() {
   if (loading) return <Loader text="Loading customer details..." />;
 
   return (
-    <div>
-      <h3 className="fw-bold mb-4">
-        {isEdit ? "Edit Customer" : "Add Customer"}
-      </h3>
+    <div className="max-w-900 mx-auto" style={{ maxWidth: "800px" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 className="fw-bold mb-1">
+            {isEdit ? "Edit Customer Record" : "Register New Customer"}
+          </h3>
+          <p className="text-muted small mb-0">
+            {isEdit
+              ? "Update personal contact details and identification records."
+              : "Capture customer credentials and verification ID for suit rentals."}
+          </p>
+        </div>
+      </div>
+
       {serverError && (
         <Alert
           type="danger"
@@ -96,56 +106,58 @@ function CustomerForm() {
         />
       )}
 
-      <div className="card p-4">
+      <div className="card p-4 p-md-5">
         <form onSubmit={handleSubmit} noValidate>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Full Name</label>
+          <div className="row g-3 g-md-4">
+            <div className="col-12">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Personal Identification
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Full Name *</label>
               <input
                 className={`form-control ${errors.fullName ? "is-invalid" : ""}`}
                 value={form.fullName}
                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                placeholder="e.g. Mohamed Ali"
               />
               {errors.fullName && (
                 <div className="invalid-feedback">{errors.fullName}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Phone</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Phone Number *</label>
               <input
                 className={`form-control ${errors.phone ? "is-invalid" : ""}`}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="e.g. +252 63 4123456"
               />
               {errors.phone && (
                 <div className="invalid-feedback">{errors.phone}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Email</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Email Address *</label>
               <input
                 type="email"
                 className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="name@example.com"
               />
               {errors.email && (
                 <div className="invalid-feedback">{errors.email}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Address</label>
-              <input
-                className={`form-control ${errors.address ? "is-invalid" : ""}`}
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-              />
-              {errors.address && (
-                <div className="invalid-feedback">{errors.address}</div>
-              )}
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">ID Type</label>
+
+            <div className="col-md-6">
+              <label className="form-label">ID Verification Type *</label>
               <select
                 className={`form-select ${errors.idType ? "is-invalid" : ""}`}
                 value={form.idType}
@@ -158,19 +170,32 @@ function CustomerForm() {
                 <div className="invalid-feedback">{errors.idType}</div>
               )}
             </div>
+
+            <div className="col-12">
+              <label className="form-label">Physical Address *</label>
+              <input
+                className={`form-control ${errors.address ? "is-invalid" : ""}`}
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                placeholder="e.g. 26 June District, Hargeisa"
+              />
+              {errors.address && (
+                <div className="invalid-feedback">{errors.address}</div>
+              )}
+            </div>
           </div>
 
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+          <div className="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" className="btn btn-primary px-4" disabled={saving}>
               {saving
                 ? "Saving..."
                 : isEdit
                   ? "Update Customer"
-                  : "Add Customer"}
+                  : "Register Customer"}
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary px-3"
               onClick={() => navigate("/customers")}
             >
               Cancel

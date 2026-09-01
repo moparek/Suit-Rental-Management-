@@ -76,8 +76,18 @@ function SuitForm() {
   if (loading) return <Loader text="Loading suit details..." />;
 
   return (
-    <div>
-      <h3 className="fw-bold mb-4">{isEdit ? "Edit Suit" : "Add Suit"}</h3>
+    <div className="max-w-900 mx-auto" style={{ maxWidth: "840px" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 className="fw-bold mb-1">{isEdit ? "Edit Suit Details" : "Add New Suit"}</h3>
+          <p className="text-muted small mb-0">
+            {isEdit
+              ? "Modify the inventory specifications and pricing for this suit."
+              : "Register a new suit or tuxedo into the atelier rental collection."}
+          </p>
+        </div>
+      </div>
+
       {serverError && (
         <Alert
           type="danger"
@@ -86,22 +96,31 @@ function SuitForm() {
         />
       )}
 
-      <div className="card p-4">
+      <div className="card p-4 p-md-5">
         <form onSubmit={handleSubmit} noValidate>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Suit Name</label>
+          <div className="row g-3 g-md-4">
+            <div className="col-12">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Suit Information
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Suit Name *</label>
               <input
                 className={`form-control ${errors.name ? "is-invalid" : ""}`}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="e.g. Royal Midnight Navy Tuxedo"
               />
               {errors.name && (
                 <div className="invalid-feedback">{errors.name}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Category</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Category *</label>
               <select
                 className="form-select"
                 value={form.category}
@@ -113,33 +132,37 @@ function SuitForm() {
                 <option value="Tuxedo">Tuxedo</option>
               </select>
             </div>
-            <div className="col-md-4 mb-3">
-              <label className="form-label">Size</label>
+
+            <div className="col-md-4">
+              <label className="form-label">Size *</label>
               <select
                 className="form-select"
                 value={form.size}
                 onChange={(e) => setForm({ ...form, size: e.target.value })}
               >
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
+                <option value="S">S (Small)</option>
+                <option value="M">M (Medium)</option>
+                <option value="L">L (Large)</option>
+                <option value="XL">XL (Extra Large)</option>
+                <option value="XXL">XXL (Double Extra Large)</option>
               </select>
             </div>
-            <div className="col-md-4 mb-3">
-              <label className="form-label">Color</label>
+
+            <div className="col-md-4">
+              <label className="form-label">Color *</label>
               <input
                 className={`form-control ${errors.color ? "is-invalid" : ""}`}
                 value={form.color}
                 onChange={(e) => setForm({ ...form, color: e.target.value })}
+                placeholder="e.g. Midnight Blue, Charcoal"
               />
               {errors.color && (
                 <div className="invalid-feedback">{errors.color}</div>
               )}
             </div>
-            <div className="col-md-4 mb-3">
-              <label className="form-label">Rental Price ($/day)</label>
+
+            <div className="col-md-4">
+              <label className="form-label">Rental Price ($/day) *</label>
               <input
                 type="number"
                 className={`form-control ${errors.rentalPrice ? "is-invalid" : ""}`}
@@ -147,13 +170,22 @@ function SuitForm() {
                 onChange={(e) =>
                   setForm({ ...form, rentalPrice: e.target.value })
                 }
+                placeholder="e.g. 45"
               />
               {errors.rentalPrice && (
                 <div className="invalid-feedback">{errors.rentalPrice}</div>
               )}
             </div>
-            <div className="col-md-4 mb-3">
-              <label className="form-label">Condition</label>
+
+            <div className="col-12 mt-4">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Condition & Availability
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Suit Condition</label>
               <select
                 className="form-select"
                 value={form.condition}
@@ -161,39 +193,49 @@ function SuitForm() {
                   setForm({ ...form, condition: e.target.value })
                 }
               >
-                <option value="New">New</option>
-                <option value="Good">Good</option>
-                <option value="Fair">Fair</option>
-                <option value="Needs Repair">Needs Repair</option>
+                <option value="New">New (Pristine)</option>
+                <option value="Good">Good (Ready to Wear)</option>
+                <option value="Fair">Fair (Minor Wear)</option>
+                <option value="Needs Repair">Needs Repair (In Atelier)</option>
               </select>
             </div>
-            <div className="col-md-4 mb-3 d-flex align-items-end">
-              <div className="form-check">
+
+            <div className="col-md-6 d-flex align-items-center pt-md-4">
+              <div className="form-check form-switch p-0 d-flex align-items-center gap-3">
                 <input
                   type="checkbox"
-                  className="form-check-input"
+                  className="form-check-input ms-0"
                   id="availability"
+                  style={{ width: "2.4em", height: "1.25em" }}
                   checked={form.availability}
                   onChange={(e) =>
                     setForm({ ...form, availability: e.target.checked })
                   }
                 />
-                <label className="form-check-label" htmlFor="availability">
-                  Available for rent
+                <label className="form-check-label fw-semibold cursor-pointer" htmlFor="availability">
+                  Ready for Immediate Rental
                 </label>
               </div>
             </div>
-            <div className="col-md-12 mb-3">
-              <label className="form-label">Image URL / Upload Image</label>
+
+            <div className="col-12 mt-4">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Imagery
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-12">
+              <label className="form-label">Image URL or Local Upload</label>
               <div className="input-group">
                 <input
                   className="form-control"
                   value={form.image}
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
-                  placeholder="https://example.com/suit.jpg or choose a file from device"
+                  placeholder="https://images.unsplash.com/... or choose file"
                 />
                 <label className="btn btn-outline-secondary mb-0 d-flex align-items-center gap-1 cursor-pointer">
-                  📁 Choose File
+                  📁 Browse File
                   <input
                     type="file"
                     accept="image/*"
@@ -211,27 +253,31 @@ function SuitForm() {
                   />
                 </label>
               </div>
+
               {form.image && (
-                <div className="mt-2 d-flex align-items-center gap-2">
+                <div className="mt-3 p-2 bg-light rounded d-flex align-items-center gap-3 border" style={{ maxWidth: "340px" }}>
                   <img
                     src={form.image}
                     alt="Preview"
-                    style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px" }}
+                    style={{ width: "70px", height: "70px", objectFit: "cover", borderRadius: "8px" }}
                     onError={(e) => { e.target.style.display = "none"; }}
                   />
-                  <small className="text-muted">Image preview</small>
+                  <div>
+                    <div className="small fw-bold">Image Preview</div>
+                    <small className="text-muted">High-resolution showcase</small>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? "Saving..." : isEdit ? "Update Suit" : "Add Suit"}
+          <div className="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" className="btn btn-primary px-4" disabled={saving}>
+              {saving ? "Saving..." : isEdit ? "Update Suit" : "Add Suit to Inventory"}
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary px-3"
               onClick={() => navigate("/suits")}
             >
               Cancel

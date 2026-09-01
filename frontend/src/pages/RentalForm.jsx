@@ -95,8 +95,20 @@ function RentalForm() {
   if (loading) return <Loader text="Loading rental form..." />;
 
   return (
-    <div>
-      <h3 className="fw-bold mb-4">{isEdit ? "Edit Rental" : "New Rental"}</h3>
+    <div className="max-w-900 mx-auto" style={{ maxWidth: "800px" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 className="fw-bold mb-1">
+            {isEdit ? "Edit Rental Record" : "Create In-Store Rental"}
+          </h3>
+          <p className="text-muted small mb-0">
+            {isEdit
+              ? "Update rental duration, return dates, and payment status."
+              : "Register an in-store suit checkout for a verified customer."}
+          </p>
+        </div>
+      </div>
+
       {serverError && (
         <Alert
           type="danger"
@@ -105,11 +117,18 @@ function RentalForm() {
         />
       )}
 
-      <div className="card p-4">
+      <div className="card p-4 p-md-5">
         <form onSubmit={handleSubmit} noValidate>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Customer</label>
+          <div className="row g-3 g-md-4">
+            <div className="col-12">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Client & Garment Selection
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Customer *</label>
               <CustomerSearchSelect
                 customers={customers}
                 value={form.customer}
@@ -120,17 +139,18 @@ function RentalForm() {
                 <div className="invalid-feedback d-block">{errors.customer}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Suit</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Select Suit *</label>
               <select
                 className={`form-select ${errors.suit ? "is-invalid" : ""}`}
                 value={form.suit}
                 onChange={(e) => setForm({ ...form, suit: e.target.value })}
               >
-                <option value="">Select suit</option>
+                <option value="">Choose suit from inventory...</option>
                 {suits.map((s) => (
                   <option key={s._id} value={s._id}>
-                    {s.name} - {s.size} (${s.rentalPrice}/day)
+                    {s.name} — Size {s.size} (${s.rentalPrice}/day)
                   </option>
                 ))}
               </select>
@@ -138,8 +158,16 @@ function RentalForm() {
                 <div className="invalid-feedback">{errors.suit}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Rental Date</label>
+
+            <div className="col-12 mt-4">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Schedule & Status
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Rental / Checkout Date *</label>
               <input
                 type="date"
                 className={`form-control ${errors.rentalDate ? "is-invalid" : ""}`}
@@ -152,8 +180,9 @@ function RentalForm() {
                 <div className="invalid-feedback">{errors.rentalDate}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Return Date</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Expected Return Date *</label>
               <input
                 type="date"
                 className={`form-control ${errors.returnDate ? "is-invalid" : ""}`}
@@ -166,20 +195,22 @@ function RentalForm() {
                 <div className="invalid-feedback">{errors.returnDate}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
+
+            <div className="col-md-6">
               <label className="form-label">Rental Status</label>
               <select
                 className="form-select"
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
               >
-                <option value="Active">Active</option>
-                <option value="Returned">Returned</option>
-                <option value="Overdue">Overdue</option>
+                <option value="Active">Active (Currently Rented)</option>
+                <option value="Returned">Returned (Completed)</option>
+                <option value="Overdue">Overdue (Past Return Date)</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
-            <div className="col-md-6 mb-3">
+
+            <div className="col-md-6">
               <label className="form-label">Payment Status</label>
               <select
                 className="form-select"
@@ -189,23 +220,23 @@ function RentalForm() {
                 }
               >
                 <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
-                <option value="Partial">Partial</option>
+                <option value="Paid">Paid (Full Settlement)</option>
+                <option value="Partial">Partial Payment</option>
               </select>
             </div>
           </div>
 
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+          <div className="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" className="btn btn-primary px-4" disabled={saving}>
               {saving
                 ? "Saving..."
                 : isEdit
-                  ? "Update Rental"
-                  : "Create Rental"}
+                  ? "Update Rental Record"
+                  : "Create Rental Checkout"}
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary px-3"
               onClick={() => navigate("/rentals")}
             >
               Cancel

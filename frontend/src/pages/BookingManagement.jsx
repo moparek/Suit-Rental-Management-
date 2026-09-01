@@ -160,22 +160,25 @@ function BookingManagement() {
       </div>
 
       {loading ? (
-        <Loader text="Loading bookings..." />
+        <Loader text="Loading customer reservations..." />
       ) : paginated.length === 0 ? (
-        <div className="card p-5 text-center text-muted">No bookings found.</div>
+        <div className="card p-5 text-center text-muted">
+          <div className="mb-2 fs-2">📋</div>
+          <h5 className="fw-bold">No bookings found</h5>
+          <p className="small mb-0">Try changing your search query or filter criteria.</p>
+        </div>
       ) : (
-        <div className="card p-3">
+        <div className="card p-0 overflow-hidden mb-4">
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
               <thead>
                 <tr className="text-nowrap">
-                  <th>Customer</th>
+                  <th>Client</th>
                   <th>Contact</th>
-                  <th>Suit</th>
-                  <th>Size / Color</th>
-                  <th>Dates</th>
+                  <th>Reserved Suit</th>
+                  <th>Rental Period</th>
                   <th>Days</th>
-                  <th>Total</th>
+                  <th>Total Amount</th>
                   <th>Status</th>
                   <th>Handled By</th>
                   <th className="text-end">Actions</th>
@@ -188,29 +191,46 @@ function BookingManagement() {
                   return (
                     <tr key={r._id}>
                       <td>
-                        <div className="fw-medium">{r.customer?.name || "-"}</div>
+                        <div className="fw-semibold">{r.customer?.name || "-"}</div>
                         <small className="text-muted">{r.customer?.email || ""}</small>
                       </td>
-                      <td><small>{r.customer?.phone || "-"}</small></td>
+                      <td>
+                        <span className="small text-muted">{r.customer?.phone || "-"}</span>
+                      </td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          {r.suit?.image && (
-                            <img src={r.suit.image} alt="" style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 4 }} />
+                          {r.suit?.image ? (
+                            <img
+                              src={r.suit.image}
+                              alt=""
+                              style={{ width: 38, height: 38, objectFit: "cover", borderRadius: 6, border: "1px solid var(--border-subtle)" }}
+                            />
+                          ) : (
+                            <div
+                              className="bg-light d-flex align-items-center justify-content-center text-muted"
+                              style={{ width: 38, height: 38, borderRadius: 6 }}
+                            >
+                              👔
+                            </div>
                           )}
-                          <span>{r.suit?.name || "-"}</span>
+                          <div>
+                            <div className="fw-semibold small">{r.suit?.name || "-"}</div>
+                            <small className="text-muted">{r.suit?.size || "-"} • {r.suit?.color || "-"}</small>
+                          </div>
                         </div>
                       </td>
                       <td>
-                        <small>{r.suit?.size || "-"} / {r.suit?.color || "-"}</small>
-                      </td>
-                      <td>
-                        <small>
+                        <small className="text-muted">
                           {new Date(r.startDate).toLocaleDateString()} –{" "}
                           {new Date(r.endDate).toLocaleDateString()}
                         </small>
                       </td>
-                      <td>{days}</td>
-                      <td className="fw-bold">${r.totalAmount}</td>
+                      <td>
+                        <span className="badge bg-secondary">{days} d</span>
+                      </td>
+                      <td>
+                        <span className="fw-bold text-primary">${r.totalAmount}</span>
+                      </td>
                       <td>
                         <span className={`badge bg-${statusBadge[st] || "secondary"}`}>
                           {st.charAt(0).toUpperCase() + st.slice(1)}
@@ -218,8 +238,8 @@ function BookingManagement() {
                       </td>
                       <td>
                         {r.handledBy?.name ? (
-                          <span className="badge bg-light text-dark border">
-                            {r.handledBy.name} ({r.handledBy.role || "Staff"})
+                          <span className="badge bg-secondary text-truncate" style={{ maxWidth: "120px" }}>
+                            {r.handledBy.name}
                           </span>
                         ) : (
                           <span className="text-muted small">-</span>
@@ -230,18 +250,18 @@ function BookingManagement() {
                           {st === "pending" && (
                             <>
                               <button
-                                className="btn btn-sm btn-success d-flex align-items-center gap-1"
+                                className="btn btn-sm btn-primary d-flex align-items-center gap-1"
                                 onClick={() => setActionModal({ id: r._id, action: "accept" })}
                                 title="Accept Booking"
                               >
-                                <FaCheck /> Accept
+                                <FaCheck size={11} /> Accept
                               </button>
                               <button
-                                className="btn btn-sm btn-danger d-flex align-items-center gap-1"
+                                className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
                                 onClick={() => setActionModal({ id: r._id, action: "reject" })}
                                 title="Reject Booking"
                               >
-                                <FaTimes /> Reject
+                                <FaTimes size={11} /> Reject
                               </button>
                             </>
                           )}
@@ -251,11 +271,11 @@ function BookingManagement() {
                               onClick={() => setActionModal({ id: r._id, action: "start" })}
                               title="Start Rental"
                             >
-                              <FaPlay /> Start Rental
+                              <FaPlay size={10} /> Start Rental
                             </button>
                           )}
                           {(st === "active" || st === "overdue" || st === "returned" || st === "rejected" || st === "cancelled") && (
-                            <span className="text-muted small">—</span>
+                            <span className="text-muted small px-2">—</span>
                           )}
                         </div>
                       </td>

@@ -106,13 +106,18 @@ function BookingForm() {
   if (loading) return <Loader text="Loading booking form..." />;
 
   return (
-    <div>
-      <h3 className="fw-bold mb-1">
-        {isEdit ? "Edit Booking" : "New Booking"}
-      </h3>
-      <p className="text-muted small mb-4">
-        Record a suit reservation taken by phone or in person.
-      </p>
+    <div className="max-w-900 mx-auto" style={{ maxWidth: "800px" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 className="fw-bold mb-1">
+            {isEdit ? "Edit Reservation" : "Record Phone Reservation"}
+          </h3>
+          <p className="text-muted small mb-0">
+            Record and manage manual phone or walk-in reservations for atelier suits.
+          </p>
+        </div>
+      </div>
+
       {serverError && (
         <Alert
           type="danger"
@@ -121,43 +126,59 @@ function BookingForm() {
         />
       )}
 
-      <div className="card p-4">
+      <div className="card p-4 p-md-5">
         <form onSubmit={handleSubmit} noValidate>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Customer Name</label>
+          <div className="row g-3 g-md-4">
+            <div className="col-12">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Caller & Client Details
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Customer Name *</label>
               <input
                 className={`form-control ${errors.customerName ? "is-invalid" : ""}`}
                 value={form.customerName}
                 onChange={(e) =>
                   setForm({ ...form, customerName: e.target.value })
                 }
-                placeholder="Full name of the caller"
+                placeholder="Full name of caller"
               />
               {errors.customerName && (
                 <div className="invalid-feedback">{errors.customerName}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Phone Number</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Phone Number *</label>
               <input
                 className={`form-control ${errors.phone ? "is-invalid" : ""}`}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="e.g. +252 63 4123456"
               />
               {errors.phone && (
                 <div className="invalid-feedback">{errors.phone}</div>
               )}
             </div>
 
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Suit</label>
+            <div className="col-12 mt-4">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Garment & Rate
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Selected Suit *</label>
               <select
                 className={`form-select ${errors.suit ? "is-invalid" : ""}`}
                 value={form.suit}
                 onChange={(e) => handleSuitChange(e.target.value)}
               >
-                <option value="">Select suit</option>
+                <option value="">Select suit from inventory...</option>
                 {suits.map((s) => (
                   <option key={s._id} value={s._id}>
                     {s.name} (${s.rentalPrice}/day)
@@ -168,7 +189,8 @@ function BookingForm() {
                 <div className="invalid-feedback">{errors.suit}</div>
               )}
             </div>
-            <div className="col-md-3 mb-3">
+
+            <div className="col-md-3">
               <label className="form-label">Size</label>
               <select
                 className="form-select"
@@ -182,8 +204,9 @@ function BookingForm() {
                 <option value="XXL">XXL</option>
               </select>
             </div>
-            <div className="col-md-3 mb-3">
-              <label className="form-label">Price ($)</label>
+
+            <div className="col-md-3">
+              <label className="form-label">Agreed Price ($) *</label>
               <input
                 type="number"
                 className={`form-control ${errors.price ? "is-invalid" : ""}`}
@@ -193,14 +216,17 @@ function BookingForm() {
               {errors.price && (
                 <div className="invalid-feedback">{errors.price}</div>
               )}
-              <div className="form-text">
-                Auto-filled from suit price — edit if you agreed on a different
-                rate.
-              </div>
             </div>
 
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Booking Date</label>
+            <div className="col-12 mt-4">
+              <h6 className="fw-bold text-primary text-uppercase small letter-spacing-wide mb-1">
+                Schedule & Notes
+              </h6>
+              <hr className="mt-1 mb-3" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label">Booking / Event Date *</label>
               <input
                 type="date"
                 className={`form-control ${errors.bookingDate ? "is-invalid" : ""}`}
@@ -213,42 +239,43 @@ function BookingForm() {
                 <div className="invalid-feedback">{errors.bookingDate}</div>
               )}
             </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label">Status</label>
+
+            <div className="col-md-6">
+              <label className="form-label">Reservation Status</label>
               <select
                 className="form-select"
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
               >
-                <option value="Reserved">Reserved</option>
+                <option value="Reserved">Reserved (Pending Fitting)</option>
                 <option value="Confirmed">Confirmed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
 
-            <div className="col-12 mb-3">
-              <label className="form-label">Notes (optional)</label>
+            <div className="col-12">
+              <label className="form-label">Fitting / Consultation Notes</label>
               <textarea
                 className="form-control"
                 rows={3}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                placeholder="Anything the caller mentioned — event date, fitting concerns, etc."
+                placeholder="Caller requirements, wedding date, custom tailoring needs..."
               />
             </div>
           </div>
 
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+          <div className="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" className="btn btn-primary px-4" disabled={saving}>
               {saving
                 ? "Saving..."
                 : isEdit
-                  ? "Update Booking"
-                  : "Save Booking"}
+                  ? "Update Reservation"
+                  : "Save Reservation"}
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary px-3"
               onClick={() => navigate("/bookings")}
             >
               Cancel
